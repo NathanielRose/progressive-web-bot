@@ -1,4 +1,4 @@
-module HarvardArtMuseums {
+//export module HarvardArtMuseums {
     const fallbackKey = "e4f1e400-08da-11e7-ad3b-f39f51a45af0";
 
     interface HttpHeader {
@@ -30,7 +30,7 @@ module HarvardArtMuseums {
         iiifbaseuri: string;
     }
 
-    export class Client {  
+    export class HarvardClient {
         private _key: string;
         private _baseUrl = "http://api.harvardartmuseums.org/object?apikey=";
 
@@ -52,7 +52,7 @@ module HarvardArtMuseums {
             let result = JSON.parse(jsonResult);
 
             if (result.records) {
-                result.records.forEach((record:any) => {
+                result.records.forEach((record: any) => {
                     let newPainting: Painting = <Painting>{};
                     newPainting.dated = record.dated;
                     newPainting.description = record.description;
@@ -79,7 +79,7 @@ module HarvardArtMuseums {
             callback(paintings);
         }
 
-        public async makeHttpRequest(actionType: string, url: string, isArrayBuffer: boolean = false, optionalHeaders?: HttpHeader[], dataToSend?:any): Promise<any> {
+        public async makeHttpRequest(actionType: string, url: string, isArrayBuffer: boolean = false, optionalHeaders?: HttpHeader[], dataToSend?: any): Promise<any> {
             return new Promise<any>((resolve, reject) => {
                 var xhr = new XMLHttpRequest();
 
@@ -121,4 +121,4 @@ module HarvardArtMuseums {
             });
         }
     }
-}
+//}

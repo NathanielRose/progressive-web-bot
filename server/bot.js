@@ -35,6 +35,9 @@ class Bot {
     bindDialogs() {
         this.bot.dialog("/artist", (session, args) => {
             var Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
+            this.harvardClient.searchFor(Artist.entity, (results) => {
+                session.endDialog('First painting: %s', results[0].title);
+            });
         });
         this.dialog.matches('artist', '/artist');
     }
@@ -51,6 +54,7 @@ class Bot {
         const url = config.luis.url;
         this.recognizer = new builder.LuisRecognizer(url);
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
+        this.harvardClient = new HarvardArtMuseums.Client();
         console.log('Initialize defaults...');
         this.dialog.onDefault((session, message) => {
             if (session.message.text === "3D") {

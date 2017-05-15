@@ -1,11 +1,14 @@
 import builder = require('botbuilder');
 import config = require('./config');
 
+import * from "HarvardClient";
+
 class Bot {
     public connector: builder.ConsoleConnector | builder.ChatConnector;
     private bot: builder.UniversalBot;
     private recognizer: builder.LuisRecognizer;
     private dialog: builder.IntentDialog;
+    private harvardClient: harvard.Client; 
 
     public initializeForWeb() {
         if (!config.bot.key) {
@@ -44,7 +47,10 @@ class Bot {
     private bindDialogs() {
         this.bot.dialog("/artist", (session,args) => {
             var Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
-            session.endDialog('I see that this is the artist called %s', Artist.entity);
+            this.harvardClient.searchFor(Artist.entity, (results) => {
+                session.endDialog('First painting: %s', results[0].title);
+            });
+            
         })
 
         this.dialog.matches('artist', '/artist'); 
@@ -66,6 +72,8 @@ class Bot {
         const url = config.luis.url;
         this.recognizer = new builder.LuisRecognizer(url);
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
+
+        this.harvardClient = new HarvardArtMuseums.Client();
 
         console.log('Initialize defaults...');
         this.dialog.onDefault((session, message) => {
