@@ -31,26 +31,15 @@ class Bot {
                 });
             }
         });
-<<<<<<< HEAD
-    };
-    Bot.prototype.bindDialogs = function () {
-        this.bot.dialog("/artist", function (session, args) {
-            var Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
-        });
-        this.dialog.matches('artist', '/artist');
-    };
-    Bot.prototype.initBackChannel = function () {
-        this.bot.on("message", function (message) {
-=======
     }
     bindDialogs() {
-        this.bot.dialog("/artist", (session) => {
+        this.bot.dialog("/artist", (session, args) => {
+            var Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
         });
         this.dialog.matches('artist', '/artist');
     }
     initBackChannel() {
         this.bot.on("message", (message) => {
->>>>>>> d00910ac0c72baf05ba73338243d05b525a1b84a
         });
         this.bot.on("event", function (message) {
             if (message.name === "myCustomEvent") {
@@ -59,11 +48,7 @@ class Bot {
     }
     init() {
         this.bot = new builder.UniversalBot(this.connector);
-<<<<<<< HEAD
-        var url = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/8204e650-feb0-471d-ab15-2813c0a33447?subscription-key=252d60e7d01c4236a6a7e77d03c558ff&timezoneOffset=0&verbose=true&q=";
-=======
-        const url = config.luis.url.replace('##APP##', config.luis.app).replace('##KEY##', config.luis.key);
->>>>>>> d00910ac0c72baf05ba73338243d05b525a1b84a
+        const url = config.luis.url;
         this.recognizer = new builder.LuisRecognizer(url);
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
         console.log('Initialize defaults...');

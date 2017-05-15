@@ -62,7 +62,7 @@ class Bot {
 
     private init() {
         this.bot = new builder.UniversalBot(this.connector);
-        const url = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/8204e650-feb0-471d-ab15-2813c0a33447?subscription-key=252d60e7d01c4236a6a7e77d03c558ff&timezoneOffset=0&verbose=true&q="
+        const url = config.luis.url;
         this.recognizer = new builder.LuisRecognizer(url);
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
 
