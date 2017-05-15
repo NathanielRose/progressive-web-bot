@@ -10,4 +10,6 @@
 
 #scene {
     flex-grow: 2;
+    touch-action: none;
+
 }
