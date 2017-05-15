@@ -36,7 +36,10 @@ var Bot = (function () {
         });
     };
     Bot.prototype.bindDialogs = function () {
-        this.dialog.matches('favoriteFood', '/food');
+        this.bot.dialog("/artist", function (session, args) {
+            var Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
+        });
+        this.dialog.matches('artist', '/artist');
     };
     Bot.prototype.initBackChannel = function () {
         this.bot.on("message", function (message) {
@@ -48,7 +51,7 @@ var Bot = (function () {
     };
     Bot.prototype.init = function () {
         this.bot = new builder.UniversalBot(this.connector);
-        var url = config.luis.url.replace('##APP##', config.luis.app).replace('##KEY##', config.luis.key);
+        var url = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/8204e650-feb0-471d-ab15-2813c0a33447?subscription-key=252d60e7d01c4236a6a7e77d03c558ff&timezoneOffset=0&verbose=true&q=";
         this.recognizer = new builder.LuisRecognizer(url);
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
         console.log('Initialize defaults...');
