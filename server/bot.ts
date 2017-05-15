@@ -62,7 +62,7 @@ class Bot {
 
     private init() {
         this.bot = new builder.UniversalBot(this.connector);
-        const url = config.luis.url.replace('##APP##', config.luis.app).replace('##KEY##', config.luis.key);
+        const url = config.luis.url.replace('##APP#', config.luis.app).replace('#KEY##', config.luis.key);
         this.recognizer = new builder.LuisRecognizer(url);
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
 
