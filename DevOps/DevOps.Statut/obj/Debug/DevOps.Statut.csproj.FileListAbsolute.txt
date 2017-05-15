@@ -1,0 +1,8 @@
+C:\Users\pierlag\Documents\GitHub\progressive-web-bot\DevOps\DevOps.Statut\obj\Debug\DevOps.Statut.csprojResolveAssemblyReference.cache
+C:\Users\pierlag\Documents\GitHub\progressive-web-bot\DevOps\DevOps.Statut\bin\Debug\DevOps.Statut.exe.config
+C:\Users\pierlag\Documents\GitHub\progressive-web-bot\DevOps\DevOps.Statut\bin\Debug\DevOps.Statut.exe
+C:\Users\pierlag\Documents\GitHub\progressive-web-bot\DevOps\DevOps.Statut\bin\Debug\DevOps.Statut.pdb
+C:\Users\pierlag\Documents\GitHub\progressive-web-bot\DevOps\DevOps.Statut\bin\Debug\Blynclight.dll
+C:\Users\pierlag\Documents\GitHub\progressive-web-bot\DevOps\DevOps.Statut\bin\Debug\Newtonsoft.Json.dll
+C:\Users\pierlag\Documents\GitHub\progressive-web-bot\DevOps\DevOps.Statut\obj\Debug\DevOps.Statut.exe
+C:\Users\pierlag\Documents\GitHub\progressive-web-bot\DevOps\DevOps.Statut\obj\Debug\DevOps.Statut.pdb

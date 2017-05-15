@@ -1,0 +1,2 @@
+C:\Users\pierlag\Documents\Visual Studio 2015\Projects\AgileTour\BlynclightTest_Software_Source\ConsoleApplication1\bin\Debug\ConsoleApplication1.exe.config
+C:\Users\pierlag\Documents\Visual Studio 2015\Projects\AgileTour\BlynclightTest_Software_Source\ConsoleApplication1\obj\Debug\ConsoleApplication1.csprojResolveAssemblyReference.cache
