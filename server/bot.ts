@@ -44,6 +44,7 @@ class Bot {
     private bindDialogs() {
         this.bot.dialog("/artist", (session,args) => {
             var Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
+            session.endDialog('I see that this is the artist called %s', Artist.entity);
         })
 
         this.dialog.matches('artist', '/artist'); 
