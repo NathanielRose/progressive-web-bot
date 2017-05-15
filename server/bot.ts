@@ -42,7 +42,11 @@ class Bot {
     }
 
     private bindDialogs() {
-        this.dialog.matches('favoriteFood', '/food'); 
+        this.bot.dialog("/artist", (session) => {
+            
+        })
+
+        this.dialog.matches('artist', '/artist'); 
     }
 
     private initBackChannel() {
