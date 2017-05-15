@@ -18,7 +18,7 @@
                 //everything is setup in DirectLine, we can create the Chatbot control
                 BotChat.App({
                     botConnection: botConnection,
-                    user: { id: botConnection.conversationId}, //you could define you own userid here
+                    user: { id: botConnection.conversationId }, //you could define you own userid here
                     resize: 'detect'
                 }, document.getElementById("bot"));
 
@@ -34,11 +34,19 @@
                 //     });
             });
 
+        botConnection.activity$
+            .filter(activity => activity.type === "event" && activity.name === "launch3D")
+            .subscribe(activity => launch3D())
+
         botConnection.activity$.subscribe(c => {
             //CALLED EACH TIME AN ACTIVITY MESSAGE IS RECEIVED
             console.log(botConnection.watermark);
         });
     };
+
+    var launch3D = function () {
+        alert("3D");
+    }
 
     //everything is defined, let's start the chat
     startChat();

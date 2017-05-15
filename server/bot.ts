@@ -46,7 +46,8 @@ class Bot {
     }
 
     private initBackChannel() {
-        this.bot.on("outgoing", function (message) {
+        this.bot.on("message", (message) => {
+            
         });
 
         this.bot.on("event", function (message) {
@@ -62,7 +63,15 @@ class Bot {
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
 
         console.log('Initialize defaults...');
-        this.dialog.onDefault(builder.DialogAction.send("I did not understand"));
+        this.dialog.onDefault((session, message) => {
+            if(session.message.text === "3D"){
+                var msg:any = new builder.Message();     
+                msg.data.type = "event";
+                msg.data.name = "launch3D";
+                msg.data.value = "Cause 3D rocks.";
+                session.send(msg);
+            }
+        });
 
         console.log('Creating dialogs...');
         this.registerDialogs();

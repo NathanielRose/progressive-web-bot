@@ -39,7 +39,7 @@ var Bot = (function () {
         this.dialog.matches('favoriteFood', '/food');
     };
     Bot.prototype.initBackChannel = function () {
-        this.bot.on("outgoing", function (message) {
+        this.bot.on("message", function (message) {
         });
         this.bot.on("event", function (message) {
             if (message.name === "myCustomEvent") {
@@ -52,7 +52,15 @@ var Bot = (function () {
         this.recognizer = new builder.LuisRecognizer(url);
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
         console.log('Initialize defaults...');
-        this.dialog.onDefault(builder.DialogAction.send("I did not understand"));
+        this.dialog.onDefault(function (session, message) {
+            if (session.message.text === "3D") {
+                var msg = new builder.Message();
+                msg.data.type = "event";
+                msg.data.name = "launch3D";
+                msg.data.value = "Cause 3D rocks.";
+                session.send(msg);
+            }
+        });
         console.log('Creating dialogs...');
         this.registerDialogs();
         console.log('Binding dialogs to intents...');
