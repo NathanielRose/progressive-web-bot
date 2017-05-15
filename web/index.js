@@ -1,6 +1,6 @@
 (function () {
 
-    const DIRECTLINE_SECRET = ""; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
 
     var startChat = function () {
         let botConnection;
