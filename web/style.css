@@ -1,0 +1,13 @@
+#container {
+    display: flex;
+    flex-direction: row;
+}
+
+#botplaceholder {
+    width: 100px;
+    flex-grow: 1;
+}
+
+#scene {
+    flex-grow: 2;
+}
