@@ -10,7 +10,7 @@ const config = {
         url: process.env.LUIS_URL || 'https://api.projectoxford.ai/luis/v2.0/apps/##APP##?subscription-key=##KEY##&verbose=true'
     },
     webServer: {
-        port: process.env.WEB_SERVER_PORT || 3978
+        port: process.env.WEB_SERVER_PORT || process.env.PORT || 3978
     }
 };
 
