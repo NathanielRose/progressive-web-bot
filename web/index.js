@@ -8,7 +8,7 @@
         //if it is a brand new conversation, we create a fresh one
         botConnection = new DirectLine.DirectLine({
             secret: DIRECTLINE_SECRET,
-            webSocket: false
+            webSocket: true
         });
 
         botConnection.connectionStatus$
@@ -44,48 +44,49 @@
         });
     };
 
+    var scene;
+
     var launch3D = function () {
-         // Get the canvas element from our HTML above
-        var canvas = document.getElementById("renderCanvas");
+        // Get the canvas element from our HTML above
+        var canvas = document.getElementById("scene");
         var engine = new BABYLON.Engine(canvas, true);
 
         // This begins the creation of a function that we will 'call' just after it's built
         var createScene = function () {
 
-            // Now create a basic Babylon Scene object 
             var scene = new BABYLON.Scene(engine);
+            var camera = new BABYLON.Camera("camera1", BABYLON.Vector3.Zero(), scene);
 
-            // Change the scene background color to green.
-            scene.clearColor = new BABYLON.Color3(0, 1, 0);
+            // Async call
+            BABYLON.SceneLoader.Append("https://www.babylonjs.com/Scenes/Espilit/",
+                "Espilit.binary.babylon", scene, function () {
+                    // The main file has been loaded but let's wait for all ressources
+                    // to be ready (textures, etc.)
+                    scene.executeWhenReady(function () {
+                        // When you're clicking or touching the rendering canvas on the right
+                        scene.onPointerDown = function () {
+                            scene.onPointerDown = undefined;
+                            // Taking the default camera and using the embedded services
+                            // In this case: moving using touch, gamepad or mouse/keyboard
+                            scene.activeCamera.attachControl(canvas, true);
+                        };
+                    });
+                });
 
-            // This creates and positions a free camera
-            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
-
-            // This targets the camera to scene origin
-            camera.setTarget(BABYLON.Vector3.Zero());
-
-            // This attaches the camera to the canvas
-            camera.attachControl(canvas, false);
-
-            // This creates a light, aiming 0,1,0 - to the sky.
-            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-
-            // Dim the light a small amount
-            light.intensity = .5;
-
-            // Let's try our built-in 'sphere' shape. Params: name, subdivisions, size, scene
-            var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
-
-            // Move the sphere upward 1/2 its height
-            sphere.position.y = 1;
-
-            // Let's try our built-in 'ground' shape.  Params: name, width, depth, subdivisions, scene
-            var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
-
-            // Leave this function
             return scene;
 
         };  // End of createScene 
+
+        if(!scene){
+            var scene = createScene();
+            engine.runRenderLoop(function () {
+                scene.render();
+            });
+
+            window.addEventListener("resize", function () {
+                engine.resize();
+            });
+        }
     }
 
     //everything is defined, let's start the chat

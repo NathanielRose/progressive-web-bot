@@ -1,15 +1,17 @@
-#container {
-    display: flex;
-    flex-direction: row;
-}
-
-#botplaceholder {
-    width: 100px;
-    flex-grow: 1;
-}
-
 #scene {
-    flex-grow: 2;
-    touch-action: none;
-
+    float: left;
+    margin-right: 20px;
+}
+#bot {
+    border: 1px solid #333;
+    float: left;
+    height: 600px;
+    width: 460px;
+    position: relative;
+}
+#bot.wc-wide {
+    width: 768px;
+}
+#bot.wc-narrow {
+    width: 320px;
 }

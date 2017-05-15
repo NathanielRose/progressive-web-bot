@@ -14,4 +14,3 @@ const config = {
     }
 };
 module.exports = config;
-//# sourceMappingURL=config.js.map

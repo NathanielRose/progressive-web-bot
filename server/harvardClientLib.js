@@ -98,4 +98,3 @@ var HarvardArtMuseums;
     }
     HarvardArtMuseums.Client = Client;
 })(HarvardArtMuseums || (HarvardArtMuseums = {}));
-//# sourceMappingURL=harvardClientLib.js.map

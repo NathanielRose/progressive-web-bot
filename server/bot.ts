@@ -44,6 +44,7 @@ class Bot {
     private bindDialogs() {
         this.bot.dialog("/artist", (session,args) => {
             var Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
+            this.send3DEvent(session);
         })
 
         this.dialog.matches('artist', '/artist'); 
@@ -60,6 +61,16 @@ class Bot {
         });
     }
 
+    private send3DEvent (session:any) {
+        if(session.message.text === "3D"){
+                var msg:any = new builder.Message();     
+                msg.data.type = "event";
+                msg.data.name = "launch3D";
+                msg.data.value = "Cause 3D rocks.";
+                session.send(msg);
+            }
+    }
+
     private init() {
         this.bot = new builder.UniversalBot(this.connector);
         const url = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/8204e650-feb0-471d-ab15-2813c0a33447?subscription-key=252d60e7d01c4236a6a7e77d03c558ff&timezoneOffset=0&verbose=true&q="
@@ -68,13 +79,7 @@ class Bot {
 
         console.log('Initialize defaults...');
         this.dialog.onDefault((session, message) => {
-            if(session.message.text === "3D"){
-                var msg:any = new builder.Message();     
-                msg.data.type = "event";
-                msg.data.name = "launch3D";
-                msg.data.value = "Cause 3D rocks.";
-                session.send(msg);
-            }
+            
         });
 
         console.log('Creating dialogs...');
