@@ -36,7 +36,11 @@
 
         botConnection.activity$
             .filter(activity => activity.type === "event" && activity.name === "launch3D")
-            .subscribe(activity => launch3D())
+            .subscribe(activity => launch3D());
+
+        botConnection.activity$
+            .filter(activity => activity.type === "event" && activity.name === "launchAudio")
+            .subscribe(activity => launchAudio());
 
         botConnection.activity$.subscribe(c => {
             //CALLED EACH TIME AN ACTIVITY MESSAGE IS RECEIVED
@@ -44,8 +48,11 @@
         });
     };
 
-    var scene;
+    var launchAudio = function () {
 
+    }
+
+    var scene;
     var launch3D = function () {
         // Get the canvas element from our HTML above
         var canvas = document.getElementById("scene");
