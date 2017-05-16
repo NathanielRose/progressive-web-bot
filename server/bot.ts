@@ -75,7 +75,7 @@ class Bot {
 
         });
 
-        this.bot.on("event", function (message) {
+        this.bot.on("event", (message) => {
             if (message.name === "myCustomEvent") {
             }
         });
@@ -97,7 +97,7 @@ class Bot {
             .subtitle(painting.people.name)
             .text(painting.description)
             .images([
-                builder.CardImage.create(session, painting.image.baseimageurl)
+                builder.CardImage.create(session, painting.image.iiifbaseuri.replace("https", "http") + "/full/pct:50/0/native.jpg")
             ])
             .buttons([
                 builder.CardAction.openUrl(session, 'https://docs.microsoft.com/bot-framework', 'Get Started')
