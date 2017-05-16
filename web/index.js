@@ -1,13 +1,14 @@
 (function () {
 
     const DIRECTLINE_SECRET = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET_pierlag = "0Ze9WPEvj18.cwA.mxg.BWNltLlA6IJ_Fba66GgKWWp-z7ypmvQb4q7TyKOG_nk"; //you get that from the direct line channel at dev.botframework.com
 
     var startChat = function () {
         let botConnection;
 
         //if it is a brand new conversation, we create a fresh one
         botConnection = new DirectLine.DirectLine({
-            secret: DIRECTLINE_SECRET,
+            secret: DIRECTLINE_SECRET_pierlag,
             webSocket: true
         });
 
@@ -49,6 +50,9 @@
     };
 
     var launchAudio = function () {
+          // Initialise Bing Speek 
+          var bingClientTTS = new BingSpeech.TTSClient("86d6de9db3a342619caf3160938799d4");
+          bingClientTTS.synthesize("Hello, audio activated");
 
     }
 
@@ -98,4 +102,5 @@
 
     //everything is defined, let's start the chat
     startChat();
+    launchAudio();
 })();
