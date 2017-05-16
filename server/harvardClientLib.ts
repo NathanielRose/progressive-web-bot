@@ -6,7 +6,7 @@ export module HarvardArtMuseums {
         value: string;
     }
 
-    interface Painting {
+    export interface Painting {
         dated: number;
         description: string;
         medium: string;
