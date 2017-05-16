@@ -14,4 +14,3 @@ server.listen(config.webServer.port, () => {
 server.get(/\/web\/?.*/, restify.serveStatic({
     directory: __dirname
 }));
-//# sourceMappingURL=server.js.map

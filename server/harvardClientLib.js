@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -7,7 +6,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+<<<<<<< HEAD
 Object.defineProperty(exports, "__esModule", { value: true });
+=======
+>>>>>>> da09f547a0fcecdec28d1d2250f4fab33f2f7aef
 var HarvardArtMuseums;
 (function (HarvardArtMuseums) {
     const fallbackKey = "e4f1e400-08da-11e7-ad3b-f39f51a45af0";
@@ -58,8 +60,12 @@ var HarvardArtMuseums;
         makeHttpRequest(actionType, url, isArrayBuffer = false, optionalHeaders, dataToSend) {
             return __awaiter(this, void 0, void 0, function* () {
                 return new Promise((resolve, reject) => {
+<<<<<<< HEAD
                     var xhr2 = require('xhr2');
                     var xhr = new xhr2.XMLHttpRequest();
+=======
+                    var xhr = new XMLHttpRequest();
+>>>>>>> da09f547a0fcecdec28d1d2250f4fab33f2f7aef
                     if (isArrayBuffer) {
                         xhr.responseType = 'arraybuffer';
                     }
@@ -100,5 +106,9 @@ var HarvardArtMuseums;
         }
     }
     HarvardArtMuseums.Client = Client;
+<<<<<<< HEAD
 })(HarvardArtMuseums = exports.HarvardArtMuseums || (exports.HarvardArtMuseums = {}));
 //# sourceMappingURL=HarvardClientLib.js.map
+=======
+})(HarvardArtMuseums || (HarvardArtMuseums = {}));
+>>>>>>> da09f547a0fcecdec28d1d2250f4fab33f2f7aef

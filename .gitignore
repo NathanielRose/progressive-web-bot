@@ -1,3 +1,5 @@
 node_modules/
 *.log
 launch.json
+server.js
+/server/*.js

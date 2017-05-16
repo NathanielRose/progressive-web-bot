@@ -49,7 +49,6 @@ class Bot {
             this.harvardClient.searchFor(Artist.entity, (results) => {
                 session.endDialog('First painting: %s', results[0].title);
             });
-            
         })
 
         this.dialog.matches('artist', '/artist'); 
@@ -66,6 +65,16 @@ class Bot {
         });
     }
 
+    private send3DEvent (session:any) {
+        if(session.message.text === "3D"){
+                var msg:any = new builder.Message();     
+                msg.data.type = "event";
+                msg.data.name = "launch3D";
+                msg.data.value = "Cause 3D rocks.";
+                session.send(msg);
+            }
+    }
+
     private init() {
         this.bot = new builder.UniversalBot(this.connector);
         const url = config.luis.url;
@@ -75,13 +84,7 @@ class Bot {
 
         console.log('Initialize defaults...');
         this.dialog.onDefault((session, message) => {
-            if(session.message.text === "3D"){
-                var msg:any = new builder.Message();     
-                msg.data.type = "event";
-                msg.data.name = "launch3D";
-                msg.data.value = "Cause 3D rocks.";
-                session.send(msg);
-            }
+            
         });
 
         console.log('Creating dialogs...');

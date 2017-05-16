@@ -36,9 +36,7 @@ class Bot {
     bindDialogs() {
         this.bot.dialog("/artist", (session, args) => {
             var Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
-            this.harvardClient.searchFor(Artist.entity, (results) => {
-                session.endDialog('First painting: %s', results[0].title);
-            });
+            this.send3DEvent(session);
         });
         this.dialog.matches('artist', '/artist');
     }
@@ -50,21 +48,26 @@ class Bot {
             }
         });
     }
+    send3DEvent(session) {
+        if (session.message.text === "3D") {
+            var msg = new builder.Message();
+            msg.data.type = "event";
+            msg.data.name = "launch3D";
+            msg.data.value = "Cause 3D rocks.";
+            session.send(msg);
+        }
+    }
     init() {
         this.bot = new builder.UniversalBot(this.connector);
-        const url = config.luis.url;
+        const url = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/8204e650-feb0-471d-ab15-2813c0a33447?subscription-key=252d60e7d01c4236a6a7e77d03c558ff&timezoneOffset=0&verbose=true&q=";
         this.recognizer = new builder.LuisRecognizer(url);
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
+<<<<<<< HEAD
         this.harvardClient = new harvard.HarvardArtMuseums.Client();
+=======
+>>>>>>> da09f547a0fcecdec28d1d2250f4fab33f2f7aef
         console.log('Initialize defaults...');
         this.dialog.onDefault((session, message) => {
-            if (session.message.text === "3D") {
-                var msg = new builder.Message();
-                msg.data.type = "event";
-                msg.data.name = "launch3D";
-                msg.data.value = "Cause 3D rocks.";
-                session.send(msg);
-            }
         });
         console.log('Creating dialogs...');
         this.registerDialogs();
@@ -75,4 +78,3 @@ class Bot {
     }
 }
 module.exports = Bot;
-//# sourceMappingURL=bot.js.map
