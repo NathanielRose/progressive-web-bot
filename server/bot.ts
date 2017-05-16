@@ -1,14 +1,13 @@
 import builder = require('botbuilder');
 import config = require('./config');
-
-import * from "HarvardClient";
+import harvard = require('./HarvardClientLib');
 
 class Bot {
     public connector: builder.ConsoleConnector | builder.ChatConnector;
     private bot: builder.UniversalBot;
     private recognizer: builder.LuisRecognizer;
     private dialog: builder.IntentDialog;
-    private harvardClient: harvard.Client; 
+    private harvardClient: harvard.HarvardArtMuseums.Client; 
 
     public initializeForWeb() {
         if (!config.bot.key) {
@@ -72,8 +71,7 @@ class Bot {
         const url = config.luis.url;
         this.recognizer = new builder.LuisRecognizer(url);
         this.dialog = new builder.IntentDialog({ recognizers: [this.recognizer] });
-
-        this.harvardClient = new HarvardArtMuseums.Client();
+        this.harvardClient = new harvard.HarvardArtMuseums.Client();
 
         console.log('Initialize defaults...');
         this.dialog.onDefault((session, message) => {
