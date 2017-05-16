@@ -1,5 +1,7 @@
 node_modules/
 *.log
 launch.json
+server.js.map
 server.js
 /server/*.js
+/server/*.js.map
