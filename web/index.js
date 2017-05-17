@@ -2,11 +2,11 @@
 
     const DIRECTLINE_SECRET = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
     const DIRECTLINE_SECRET_pierlag = "0Ze9WPEvj18.cwA.mxg.BWNltLlA6IJ_Fba66GgKWWp-z7ypmvQb4q7TyKOG_nk"; //you get that from the direct line channel at dev.botframework.com
-
+    var botConnection;
     var bingClientTTS = null;
 
     var startChat = function () {
-        let botConnection;
+
         //if it is a brand new conversation, we create a fresh one
         botConnection = new DirectLine.DirectLine({
             secret: DIRECTLINE_SECRET,
@@ -38,24 +38,28 @@
     };
 
     var launchAudio = function () {
-          // Initialise Bing Speek 
-          bingClientTTS = new BingSpeech.TTSClient("86d6de9db3a342619caf3160938799d4");
-          if (bingClientTTS)
+        // Initialise Bing Speek 
+        bingClientTTS = new BingSpeech.TTSClient("86d6de9db3a342619caf3160938799d4");
+        if (bingClientTTS)
             bingClientTTS.synthesize("Hello, audio activated");
     }
 
-
+    var didit = false;
     const handleActivity = function (activity) {
 
         if (activity.text) {
             console.log("A text message was sent: " + activity.text);
             if (bingClientTTS)
                 bingClientTTS.synthesize(activity.text);
+            if (!didit) {
+               // sendMessageThroughDirectLine("What did picasso paint?");
+                didit = true
+            }
         }
         else if (activity.attachments && activity.attachments.length > 0) {
             console.log("A herocard style message was sent: ", activity.attachments);
             launch3D(() => {
-                for(var tid = 1; tid < activity.attachments.length; tid++) {
+                for (var tid = 1; tid < activity.attachments.length; tid++) {
                     if (tid === 33) tid++;
                     var attachment = activity.attachments[tid];
                     var t = scene.getMeshByName("T" + tid);
@@ -75,24 +79,17 @@
 
 
     const sendMessageThroughDirectLine = function (message) {
-        // botConnection.postActivity({
-        //     type: "message",
-        //     text: "Hello world",
-        //     locale: "en-US",
-        //     textFormat: "plain",
-        //     timestamp: new Date().toISOString(),
-        //     value: "",
-        //     from: { id: botConnection.conversationId },
-        //     channelData: {
-        //         clientActivityId: 1
-        //     }
-        // });
         botConnection.postActivity({
-            type: "event",
-            name: "pushsubscriptionadded",
-            value: {},
-            from: { id: botConnection.conversationId } //you could define your own userId here
-        })
+            type: "message",
+            text: message,
+            locale: "en-US",
+            textFormat: "plain",
+            timestamp: new Date().toISOString(),
+            from: { id: botConnection.conversationId },
+            channelData: {
+                clientActivityId: 1
+            }
+        }).subscribe(_ => { });
     }
 
     var scene;
