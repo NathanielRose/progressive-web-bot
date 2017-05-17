@@ -35,7 +35,7 @@ class Bot {
                     if (identity.id === message.address.bot.id) {
                         var reply = new builder.Message()
                             .address(message.address)
-                            .text("Helo! I am the art bot");
+                            .text("Hello! I am the art bot. You can say: 'what did picasso paint?'");
                         this.bot.send(reply);
                     }
                 });
@@ -45,6 +45,11 @@ class Bot {
 
     private bindDialogs() {
         this.bot.dialog("/artist", (session, args) => {
+            if(!args.entities){
+                session.endDialog("I did not understand :)");
+                return;
+            }
+            
             let Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
 
             this.harvardClient.searchFor(Artist.entity, (results) => {

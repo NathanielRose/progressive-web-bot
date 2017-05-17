@@ -1,23 +1,30 @@
-#scene {
-    float: left;
-    margin-right: 20px;
+body {
+    margin: 0;
 }
+
+#container {
+    display: flex;
+    height: calc(100vh - 2px);
+}
+
 #bot {
     border: 1px solid #333;
     float: left;
-    height: 600px;
-    width: 460px;
+    height: 100%;
+    width: 40%;
+    min-width: 40%; 
     position: relative;
 }
+
 #bot.wc-wide {
     width: 768px;
 }
+
 #bot.wc-narrow {
     width: 320px;
 }
-#container {
-    display: flex;
-}
+
 #scene {
+    float: left;
     width: 100%;
 }
