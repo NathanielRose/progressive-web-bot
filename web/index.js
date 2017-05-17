@@ -1,10 +1,14 @@
 (function () {
 
-    const DIRECTLINE_SECRET = "YgAIrcFhc5M.cwA.0Dk.BuBNtSXA13mjj6JOVWQFIzazJRkrjXjEjPLwldR-Oaw"; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET_davrous = "YgAIrcFhc5M.cwA.0Dk.BuBNtSXA13mjj6JOVWQFIzazJRkrjXjEjPLwldR-Oaw"; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET_pierlag = "0Ze9WPEvj18.cwA.mxg.BWNltLlA6IJ_Fba66GgKWWp-z7ypmvQb4q7TyKOG_nk"; //you get that from the direct line channel at dev.botframework.com
+    
     var botConnection;
     var sceneReady = false;
-    const startChat = function () {
+    var bingClientTTS = null;
 
+    var startChat = function () {
         //if it is a brand new conversation, we create a fresh one
         botConnection = new DirectLine.DirectLine({
             secret: DIRECTLINE_SECRET,
@@ -35,14 +39,19 @@
         botConnection.activity$.subscribe(handleActivity);
     };
 
-    const launchAudio = function () {
-
+    var launchAudio = function () {
+          // Initialise Bing Speek 
+          bingClientTTS = new BingSpeech.TTSClient("86d6de9db3a342619caf3160938799d4");
+          if (bingClientTTS)
+            bingClientTTS.synthesize("Hello, audio activated");
     }
 
 
     const handleActivity = function (activity) {
         if (activity.text) {
             console.log("A text message was sent: " + activity.text);
+            if (bingClientTTS)
+                bingClientTTS.synthesize(activity.text);
         }
         else if (activity.attachments && activity.attachments.length > 0) {
             console.log("A herocard style message was sent: ", activity.attachments);
@@ -73,6 +82,7 @@
             }
         }
     }
+
 
     const sendMessageThroughDirectLine = function (message) {
         // botConnection.postActivity({
@@ -143,4 +153,5 @@
 
     //everything is defined, let's start the chat
     startChat();
+    launchAudio();
 })();
