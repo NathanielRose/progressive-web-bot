@@ -97,7 +97,7 @@ class Bot {
             .subtitle(painting.people.name)
             .text(painting.description)
             .images([
-                builder.CardImage.create(session, painting.image.iiifbaseuri.replace("https", "http") + "/full/pct:50/0/native.jpg")
+                builder.CardImage.create(session, painting.image.iiifbaseuri.replace("https", "http") + "/full/pct:20/0/native.jpg")
             ])
             .buttons([
                 builder.CardAction.openUrl(session, 'https://docs.microsoft.com/bot-framework', 'Get Started')
