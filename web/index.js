@@ -43,15 +43,17 @@
     var launchAudio = function () {
         // Initialise Bing Speek 
         bingClientTTS = new BingSpeech.TTSClient("86d6de9db3a342619caf3160938799d4");
-        if (bingClientTTS)
-            bingClientTTS.synthesize("Hello, audio activated");
+        if (bingClientTTS) {
+            bingClientTTS.synthesize("Audio is now activated");
+        }
     }
 
     const handleActivity = function (activity) {
         if (activity.text) {
             console.log("A text message was sent: " + activity.text);
-            if (bingClientTTS)
+            if (bingClientTTS && activity.from.id !== botConnection.conversationId) {
                 bingClientTTS.synthesize(activity.text);
+            }
         }
         else if (activity.attachments && activity.attachments.length > 0) {
             console.log("A herocard style message was sent: ", activity.attachments);
@@ -75,21 +77,35 @@
     const refresh3DPaintings = function (paintingList) {
         function injectPaitingsTexturesIntoScene() {
             // scene.debugLayer.show();
-            for (var tid = 0; tid < paintingList.length; tid++) {
+
+            for (var tid = 0; tid < 46; tid++) {
                 // Mesh T33 is not usable, ignoring it
                 if (tid !== 29) {
-                    var painting = paintingList[tid];
-                    var tableau = scene.getMeshByName("T" + (tid + 4).toString());
-                    tableau.setVerticesData("uv", [0, 0, 0, 1, 1, 1, 1, 0]);
-                    var url = painting.image.iiifbaseuri;
+                    let currentId = tid + 4
+                    var tableau = scene.getMeshByName("T" + currentId);
+                    if (tableau && tableau.material) {
+                        tableau.material.dispose();
+                    }
 
-                    var paitingMaterial = new BABYLON.StandardMaterial("paiting" + tid, scene);
-                    var newPaintingTexture = new BABYLON.Texture(url, scene, false, false);
-                    paitingMaterial.diffuseTexture = newPaintingTexture;
-                    paitingMaterial.emissiveTexture = newPaintingTexture;
-                    paitingMaterial.specularColor = BABYLON.Color3.Black();
-                    tableau.material = paitingMaterial;
-                    tableau.paintingData = painting;
+                    var paitingMaterial = new BABYLON.StandardMaterial("painting" + tid, scene);
+                    var newPaintingTexture;
+
+                    if (tid < paintingList.length) {
+                        var painting = paintingList[tid];
+                        var url = painting.image.iiifbaseuri;
+                        
+                        tableau.setVerticesData("uv", [0, 0, 0, 1, 1, 1, 1, 0]);
+                        newPaintingTexture = new BABYLON.Texture(url, scene, false, false);
+                        paitingMaterial.diffuseTexture = newPaintingTexture;
+                        paitingMaterial.emissiveTexture = newPaintingTexture;
+                        paitingMaterial.specularColor = BABYLON.Color3.Black();
+                        tableau.material = paitingMaterial;
+                        tableau.paintingData = painting;
+                    } else {
+                        paitingMaterial.emissiveColor = BABYLON.Color3.Red();
+                        tableau.material = paitingMaterial;
+                        tableau.paintingData = painting;
+                    }
                 }
             }
         }
