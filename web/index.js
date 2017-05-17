@@ -1,7 +1,7 @@
 (function () {
 
-    const DIRECTLINE_SECRET = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
-    const DIRECTLINE_SECRET_davrous = "YgAIrcFhc5M.cwA.0Dk.BuBNtSXA13mjj6JOVWQFIzazJRkrjXjEjPLwldR-Oaw"; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET_meulta = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET = "YgAIrcFhc5M.cwA.0Dk.BuBNtSXA13mjj6JOVWQFIzazJRkrjXjEjPLwldR-Oaw"; //you get that from the direct line channel at dev.botframework.com
     const DIRECTLINE_SECRET_pierlag = "0Ze9WPEvj18.cwA.mxg.BWNltLlA6IJ_Fba66GgKWWp-z7ypmvQb4q7TyKOG_nk"; //you get that from the direct line channel at dev.botframework.com
 
 
@@ -78,7 +78,7 @@
         function injectPaitingsTexturesIntoScene() {
             // scene.debugLayer.show();
 
-            for (var tid = 0; tid < 46; tid++) {
+            for (var tid = 0; tid < 41; tid++) {
                 // Mesh T33 is not usable, ignoring it
                 if (tid !== 29) {
                     let currentId = tid + 4
@@ -103,8 +103,9 @@
                         tableau.paintingData = painting;
                     } else {
                         paitingMaterial.emissiveColor = BABYLON.Color3.Red();
-                        tableau.material = paitingMaterial;
-                        tableau.paintingData = painting;
+                        if (tableau.material) {
+                            tableau.material = paitingMaterial;
+                        }
                     }
                 }
             }
@@ -118,10 +119,13 @@
     }
 
     var scene;
+    var camera;
+    var canvas;
+    var engine;
     var launch3D = function (done) {
         // Get the canvas element from our HTML above
-        var canvas = document.getElementById("scene");
-        var engine = new BABYLON.Engine(canvas, true);
+        canvas = document.getElementById("scene");
+        engine = new BABYLON.Engine(canvas, true);
         engine.enableOfflineSupport = true;
 
         // This begins the creation of a function that we will 'call' just after it's built
@@ -141,6 +145,11 @@
                             // Taking the default camera and using the embedded services
                             // In this case: moving using touch, gamepad or mouse/keyboard
                             scene.activeCamera.attachControl(canvas, true);
+                            camera = scene.activeCamera;
+                            createTargetMesh();
+                            scene.registerBeforeRender(function () {
+                                castRayAndSelectObject();
+                            });
                         };
                     });
                 });
@@ -161,7 +170,68 @@
         window.addEventListener("resize", function () {
             engine.resize();
         });
+
+        //When click event is raised
+        canvas.addEventListener("click", function () {
+            // We try to pick an object
+            var pickResult = scene.pick(scene.pointerX, scene.pointerY);
+            // if the click hits the wall object, we change the impact picture position
+            if (pickResult.hit && pickResult.pickedMesh.paintingData) {
+                console.log(pickResult.pickedMesh.paintingData);
+                window.open(pickResult.pickedMesh.paintingData.image.baseimageurl, "_blank");
+            }
+        });
     }
+
+    var createTargetMesh = function () {
+        target = BABYLON.Mesh.CreateSphere("sphere", 12, 0.025, scene);
+        var targetMat = new BABYLON.StandardMaterial("targetMat", scene);
+        targetMat.emissiveColor = BABYLON.Color3.Purple();
+        target.material = targetMat;
+        target.parent = camera;
+        target.position.z = 2;
+    }
+
+    function isNumeric(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+
+    function predicate(mesh) {
+        if (mesh.name.startsWith("T") && isNumeric(mesh.name[1]) && mesh.name !== "T33") {
+            return true;
+        }
+        return false;
+    }
+
+    var mouseOnly = false;
+    var currentPaintingSelected;
+    var castRayAndSelectObject = function () {
+        var ray;
+        if (mouseOnly || !camera.leftController) {
+            ray = camera.getForwardRay();
+        } else {
+            ray = camera.leftController.getForwardRay();
+        }
+
+        var hit = scene.pickWithRay(ray, predicate);
+
+        if (hit.pickedMesh) {
+            currentPaintingSelected = hit.pickedMesh;
+            // if (currentPaintingSelected.paintaingData) {
+            //     console.log(currentPaintingSelected.paintaingData);
+            // }
+            currentPaintingSelected.edgesColor = BABYLON.Color3.Yellow();
+            currentPaintingSelected.edgesWidth = 3;
+            currentPaintingSelected.enableEdgesRendering();
+        }
+        else {
+            if (currentPaintingSelected) {
+                currentPaintingSelected.disableEdgesRendering();
+                currentPaintingSelected = null;
+            }
+        }
+    }
+
 
     //everything is defined, let's start the chat
     startChat();
