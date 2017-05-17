@@ -1,7 +1,7 @@
 (function () {
 
-    const DIRECTLINE_SECRET_meulta = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
-    const DIRECTLINE_SECRET = "YgAIrcFhc5M.cwA.0Dk.BuBNtSXA13mjj6JOVWQFIzazJRkrjXjEjPLwldR-Oaw"; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET_davrous = "YgAIrcFhc5M.cwA.0Dk.BuBNtSXA13mjj6JOVWQFIzazJRkrjXjEjPLwldR-Oaw"; //you get that from the direct line channel at dev.botframework.com
     const DIRECTLINE_SECRET_pierlag = "0Ze9WPEvj18.cwA.mxg.BWNltLlA6IJ_Fba66GgKWWp-z7ypmvQb4q7TyKOG_nk"; //you get that from the direct line channel at dev.botframework.com
 
 
@@ -72,6 +72,17 @@
                 clientActivityId: 1
             }
         }).subscribe(_ => { });
+    }
+
+     const sendEventThroughDirectLine = function (eventName, value) {
+        botConnection.postActivity({
+            type: "event",
+            name: eventName,
+            value: value,
+            from: { id: botConnection.conversationId }      
+        }).subscribe(function (id) { 
+
+        });
     }
 
     const refresh3DPaintings = function (paintingList) {
@@ -178,7 +189,7 @@
             // if the click hits the wall object, we change the impact picture position
             if (pickResult.hit && pickResult.pickedMesh.paintingData) {
                 console.log(pickResult.pickedMesh.paintingData);
-                window.open(pickResult.pickedMesh.paintingData.image.baseimageurl, "_blank");
+                sendEventThroughDirectLine("paintingInfo", pickResult.pickedMesh.paintingData);
             }
         });
     }
@@ -231,7 +242,6 @@
             }
         }
     }
-
 
     //everything is defined, let's start the chat
     startChat();

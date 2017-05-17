@@ -1,12 +1,12 @@
 const config = {
     bot: {
         //David key
-        app: process.env.BOT_APP_ID || '345dffb4-150e-47de-a291-3eaf5cc30014',
-        key: process.env.BOT_KEY || 'w5dBTaxppdV41NMQ8nLozEz'
+        // app: process.env.BOT_APP_ID || '345dffb4-150e-47de-a291-3eaf5cc30014',
+        // key: process.env.BOT_KEY || 'w5dBTaxppdV41NMQ8nLozEz'
 
         //Etienne
-        // app: process.env.BOT_APP_ID || 'fc8c4331-3e8e-48c2-b6c8-15df6a54e84c',
-        // key: process.env.BOT_KEY || 'b1jZdehvaAFU7FKazSYkRu8'
+        app: process.env.BOT_APP_ID || 'fc8c4331-3e8e-48c2-b6c8-15df6a54e84c',
+        key: process.env.BOT_KEY || 'b1jZdehvaAFU7FKazSYkRu8'
 
         //Pierlag
         //pp: process.env.BOT_APP_ID || '42b9242e-7541-4b76-9183-6ff1ebab977f',
