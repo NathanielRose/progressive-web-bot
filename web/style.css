@@ -15,3 +15,9 @@
 #bot.wc-narrow {
     width: 320px;
 }
+#container {
+    display: flex;
+}
+#scene {
+    width: 100%;
+}

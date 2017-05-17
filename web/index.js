@@ -1,16 +1,19 @@
 (function () {
 
     const DIRECTLINE_SECRET = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
+    const DIRECTLINE_SECRET_davrous = "YgAIrcFhc5M.cwA.0Dk.BuBNtSXA13mjj6JOVWQFIzazJRkrjXjEjPLwldR-Oaw"; //you get that from the direct line channel at dev.botframework.com
     const DIRECTLINE_SECRET_pierlag = "0Ze9WPEvj18.cwA.mxg.BWNltLlA6IJ_Fba66GgKWWp-z7ypmvQb4q7TyKOG_nk"; //you get that from the direct line channel at dev.botframework.com
+ 
+    
     var botConnection;
+    var sceneReady = false;
     var bingClientTTS = null;
 
     var startChat = function () {
-
         //if it is a brand new conversation, we create a fresh one
         botConnection = new DirectLine.DirectLine({
             secret: DIRECTLINE_SECRET,
-            webSocket: false
+            webSocket: true
         });
 
         botConnection.connectionStatus$
@@ -46,37 +49,45 @@
 
     var didit = false;
     const handleActivity = function (activity) {
-
         if (activity.text) {
             console.log("A text message was sent: " + activity.text);
             if (bingClientTTS)
                 bingClientTTS.synthesize(activity.text);
             if (!didit) {
-               // sendMessageThroughDirectLine("What did picasso paint?");
+                //sendMessageThroughDirectLine("What did picasso paint?");
                 didit = true
             }
         }
         else if (activity.attachments && activity.attachments.length > 0) {
             console.log("A herocard style message was sent: ", activity.attachments);
-            launch3D(() => {
-                for (var tid = 1; tid < activity.attachments.length; tid++) {
-                    if (tid === 33) tid++;
-                    var attachment = activity.attachments[tid];
-                    var t = scene.getMeshByName("T" + tid);
-                    var url = attachment.content.images[0].url;
-                    var materialPlane = new BABYLON.StandardMaterial("paiting", scene);
-                    materialPlane.diffuseTexture = new BABYLON.Texture(
-                        url, scene, false, false);
-                    materialPlane.emissiveTexture = new BABYLON.Texture(
-                        url, scene, false, false);
-                    t.setVerticesData("uv", [0, 0, 0, 1, 1, 1, 1, 0]);
-                    t.material = materialPlane;
-                    console.log(t.name + " " + url);
+                       
+            function injectPaitingsTexturesIntoScene() {
+                //scene.debugLayer.show();
+                for(var tid = 0; tid < activity.attachments.length; tid++) {
+                    // Mesh T33 is not usable, ignoring it
+                    if (tid !== 29) {
+                        var attachment = activity.attachments[tid];
+                        var tableau = scene.getMeshByName("T" + (tid+4).toString());
+                        tableau.setVerticesData("uv", [0, 0, 0, 1, 1, 1, 1, 0]);
+                        var url = attachment.content.images[0].url;
+
+                        var paitingMaterial = new BABYLON.StandardMaterial("paiting" + tid, scene);
+                        var newPaintingTexture = new BABYLON.Texture(url, scene, false, false);
+                        paitingMaterial.diffuseTexture = newPaintingTexture;
+                        paitingMaterial.emissiveTexture = newPaintingTexture;
+                        paitingMaterial.specularColor = BABYLON.Color3.Black();
+                        tableau.material = paitingMaterial;
+                    }
                 }
-            });
+            }
+            if (!sceneReady) {
+                launch3D(injectPaitingsTexturesIntoScene);
+            }
+            else {
+                injectPaitingsTexturesIntoScene();
+            }
         }
     }
-
 
     const sendMessageThroughDirectLine = function (message) {
         botConnection.postActivity({
@@ -97,20 +108,19 @@
         // Get the canvas element from our HTML above
         var canvas = document.getElementById("scene");
         var engine = new BABYLON.Engine(canvas, true);
+        engine.enableOfflineSupport = true;
 
         // This begins the creation of a function that we will 'call' just after it's built
         var createScene = function () {
-
-            var scene = new BABYLON.Scene(engine);
-            var camera = new BABYLON.Camera("camera1", BABYLON.Vector3.Zero(), scene);
-
-            // Async call
-            BABYLON.SceneLoader.Append("https://www.babylonjs.com/Scenes/Espilit/",
-                "Espilit.binary.babylon", scene, function () {
+            BABYLON.SceneLoader.ForceFullSceneLoadingForIncremental = true;
+            
+            BABYLON.SceneLoader.Load("http://www.babylonjs.com/Scenes/Espilit/", 
+                "Espilit.babylon", engine, function (newScene) {
+                    scene = newScene;
                     // The main file has been loaded but let's wait for all ressources
                     // to be ready (textures, etc.)
                     scene.executeWhenReady(function () {
-                        done();
+                        //done();
                         // When you're clicking or touching the rendering canvas on the right
                         scene.onPointerDown = function () {
                             scene.onPointerDown = undefined;
@@ -120,14 +130,18 @@
                         };
                     });
                 });
+        };  
 
-            return scene;
-
-        };  // End of createScene 
-
-        scene = createScene();
+        createScene();
         engine.runRenderLoop(function () {
-            scene.render();
+            if (scene) {
+                scene.render();
+                if (scene.getWaitingItemsCount() === 0 && !sceneReady) {
+                    sceneReady = true;
+                    console.log("-= Scene Ready! =-");
+                    window.setTimeout(done, 1000);
+                }
+            }
         });
 
         window.addEventListener("resize", function () {
