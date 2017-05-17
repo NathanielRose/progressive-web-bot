@@ -2,6 +2,12 @@ import builder = require('botbuilder');
 import config = require('./config');
 import harvard = require('./HarvardClientLib');
 
+enum ClientEvents {
+    Refresh3DPaintings,
+    LaunchTextToSpeech,
+    LaunchSpeechToText
+}
+
 class Bot {
     public connector: builder.ConsoleConnector | builder.ChatConnector;
     private bot: builder.UniversalBot;
@@ -56,6 +62,7 @@ class Bot {
                 let heroCardList: builder.AttachmentType[] = [];
 
                 results.forEach((painting) => {
+                    painting.image.iiifbaseuri = painting.image.iiifbaseuri.replace("https", "http") + "/full/pct:20/0/native.jpg";
                     heroCardList.push(this.createHeroCard(session, painting));
                 });
 
@@ -69,6 +76,10 @@ class Bot {
                 }
 
                 session.endDialog(msg);
+
+                if(results.length > 0) {
+                    this.sendEvent(session, ClientEvents.Refresh3DPaintings, results);
+                }                
             });
         })
 
@@ -86,14 +97,12 @@ class Bot {
         });
     }
 
-    private send3DEvent(session: any) {
-        if (session.message.text === "3D") {
-            var msg: any = new builder.Message();
-            msg.data.type = "event";
-            msg.data.name = "launch3D";
-            msg.data.value = "Cause 3D rocks.";
-            session.send(msg);
-        }
+    private sendEvent(session: any, eventType: ClientEvents, value?: any) {
+        var msg:any = new builder.Message();
+        msg.data.type = "event";
+        msg.data.name = ClientEvents[eventType];
+        msg.data.value = value;
+        session.send(msg);
     }
 
     private createHeroCard(session: builder.Session, painting: harvard.HarvardArtMuseums.Painting): builder.HeroCard {
@@ -102,7 +111,7 @@ class Bot {
             .subtitle(painting.people.name)
             .text(painting.description)
             .images([
-                builder.CardImage.create(session, painting.image.iiifbaseuri.replace("https", "http") + "/full/pct:20/0/native.jpg")
+                builder.CardImage.create(session, painting.image.iiifbaseuri)
             ])
             .buttons([
                 builder.CardAction.openUrl(session, 'https://docs.microsoft.com/bot-framework', 'Get Started')

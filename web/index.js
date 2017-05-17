@@ -3,8 +3,8 @@
     const DIRECTLINE_SECRET = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
     const DIRECTLINE_SECRET_davrous = "YgAIrcFhc5M.cwA.0Dk.BuBNtSXA13mjj6JOVWQFIzazJRkrjXjEjPLwldR-Oaw"; //you get that from the direct line channel at dev.botframework.com
     const DIRECTLINE_SECRET_pierlag = "0Ze9WPEvj18.cwA.mxg.BWNltLlA6IJ_Fba66GgKWWp-z7ypmvQb4q7TyKOG_nk"; //you get that from the direct line channel at dev.botframework.com
- 
-    
+
+
     var botConnection;
     var sceneReady = false;
     var bingClientTTS = null;
@@ -30,8 +30,8 @@
             });
 
         botConnection.activity$
-            .filter(activity => activity.type === "event" && activity.name === "launch3D")
-            .subscribe(activity => launch3D());
+            .filter(activity => activity.type === "event" && activity.name === "Refresh3DPaintings")
+            .subscribe(activity => refresh3DPaintings(activity.value));
 
         botConnection.activity$
             .filter(activity => activity.type === "event" && activity.name === "launchAudio")
@@ -47,45 +47,14 @@
             bingClientTTS.synthesize("Hello, audio activated");
     }
 
-    var didit = false;
     const handleActivity = function (activity) {
         if (activity.text) {
             console.log("A text message was sent: " + activity.text);
             if (bingClientTTS)
                 bingClientTTS.synthesize(activity.text);
-            if (!didit) {
-                //sendMessageThroughDirectLine("What did picasso paint?");
-                didit = true
-            }
         }
         else if (activity.attachments && activity.attachments.length > 0) {
             console.log("A herocard style message was sent: ", activity.attachments);
-                       
-            function injectPaitingsTexturesIntoScene() {
-                //scene.debugLayer.show();
-                for(var tid = 0; tid < activity.attachments.length; tid++) {
-                    // Mesh T33 is not usable, ignoring it
-                    if (tid !== 29) {
-                        var attachment = activity.attachments[tid];
-                        var tableau = scene.getMeshByName("T" + (tid+4).toString());
-                        tableau.setVerticesData("uv", [0, 0, 0, 1, 1, 1, 1, 0]);
-                        var url = attachment.content.images[0].url;
-
-                        var paitingMaterial = new BABYLON.StandardMaterial("paiting" + tid, scene);
-                        var newPaintingTexture = new BABYLON.Texture(url, scene, false, false);
-                        paitingMaterial.diffuseTexture = newPaintingTexture;
-                        paitingMaterial.emissiveTexture = newPaintingTexture;
-                        paitingMaterial.specularColor = BABYLON.Color3.Black();
-                        tableau.material = paitingMaterial;
-                    }
-                }
-            }
-            if (!sceneReady) {
-                launch3D(injectPaitingsTexturesIntoScene);
-            }
-            else {
-                injectPaitingsTexturesIntoScene();
-            }
         }
     }
 
@@ -103,6 +72,35 @@
         }).subscribe(_ => { });
     }
 
+    const refresh3DPaintings = function (paintingList) {
+        function injectPaitingsTexturesIntoScene() {
+            // scene.debugLayer.show();
+            for (var tid = 0; tid < paintingList.length; tid++) {
+                // Mesh T33 is not usable, ignoring it
+                if (tid !== 29) {
+                    var painting = paintingList[tid];
+                    var tableau = scene.getMeshByName("T" + (tid + 4).toString());
+                    tableau.setVerticesData("uv", [0, 0, 0, 1, 1, 1, 1, 0]);
+                    var url = painting.image.iiifbaseuri;
+
+                    var paitingMaterial = new BABYLON.StandardMaterial("paiting" + tid, scene);
+                    var newPaintingTexture = new BABYLON.Texture(url, scene, false, false);
+                    paitingMaterial.diffuseTexture = newPaintingTexture;
+                    paitingMaterial.emissiveTexture = newPaintingTexture;
+                    paitingMaterial.specularColor = BABYLON.Color3.Black();
+                    tableau.material = paitingMaterial;
+                    tableau.paintingData = painting;
+                }
+            }
+        }
+        if (!sceneReady) {
+            launch3D(injectPaitingsTexturesIntoScene);
+        }
+        else {
+            injectPaitingsTexturesIntoScene();
+        }
+    }
+
     var scene;
     var launch3D = function (done) {
         // Get the canvas element from our HTML above
@@ -113,8 +111,8 @@
         // This begins the creation of a function that we will 'call' just after it's built
         var createScene = function () {
             BABYLON.SceneLoader.ForceFullSceneLoadingForIncremental = true;
-            
-            BABYLON.SceneLoader.Load("http://www.babylonjs.com/Scenes/Espilit/", 
+
+            BABYLON.SceneLoader.Load("http://www.babylonjs.com/Scenes/Espilit/",
                 "Espilit.babylon", engine, function (newScene) {
                     scene = newScene;
                     // The main file has been loaded but let's wait for all ressources
@@ -130,7 +128,7 @@
                         };
                     });
                 });
-        };  
+        };
 
         createScene();
         engine.runRenderLoop(function () {
