@@ -128,22 +128,38 @@ class Bot {
                 });
             }, (session, results) => {
                 //Chooses just the era name - parsing out the count
-                var era = results.response.entity.split(' ')[0];;
+                var artistName = results.response.entity.split(' (')[0];;
+                this.sendPaintings(session, artistName);
 
-                //Syntax for filtering results by 'era'. Note the $ in front of filter (OData syntax)
-                var queryString = this.searchQueryStringBuilder('$filter=people eq ' + '\'' + era + '\'');
+                //TODO : Use this when we will have everything in Azure Search
 
-                this.performSearchQuery(queryString, function (err: any, result: any) {
+                // //Syntax for filtering results by 'era'. Note the $ in front of filter (OData syntax)
+                // var queryString = this.searchQueryStringBuilder('$filter=people eq ' + '\'' + artistName + '\'');
 
-                    if (err) {
-                        console.log("Error when filtering by genre: " + err);
-                    } else if (result && result['value'] && result['value'][0]) {
-                        //If we have results send them to the showResults dialog (acts like a decoupled view)
-                        session.replaceDialog('/showResults', { result });
-                    } else {
-                        session.endDialog("I couldn't find any musicians in that era :0");
-                    }
-                })
+                // this.performSearchQuery(queryString, (err: any, result: any) => {
+                //     if (err) {
+                //         console.log("Error when filtering by genre: " + err);
+                //     } else if (result && result['value'] && result['value'][0]) {
+                //         //If we have results send them to the showResults dialog (acts like a decoupled view)
+                //         let paintings: any[] = [];
+                //         session.endDialog(`Here is what I found for ${artistName}`);
+                //         result.value.forEach((value: any) => {
+                //             paintings.push({
+                //                 title: value.title,
+                //                 people: {
+                //                     name: value.people
+                //                 },
+                //                 image: {
+                //                     iiifbaseuri: value.primaryimageurl
+                //                 }
+                //             })
+                //         });
+
+                //         //session.replaceDialog('/showResults', { result });
+                //     } else {
+                //         session.endDialog("I couldn't find any paintings for this artist.");
+                //     }
+                // })
             }
         ]);
 
@@ -154,12 +170,13 @@ class Bot {
             }
 
             let Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
+
             this.sendPaintings(session, Artist.entity);
         });
     }
 
-    private sendPaintings(session: builder.Session, artist: string) {
-        this.harvardClient.searchFor(artist, (results) => {
+    private sendPaintings(session: builder.Session, artistName: string) {
+        this.harvardClient.searchFor(artistName, (results) => {
             let heroCardList: builder.AttachmentType[] = [];
 
             results.forEach((painting) => {

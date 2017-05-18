@@ -53,6 +53,9 @@ export module HarvardArtMuseums {
 
             if (result.records) {
                 result.records.forEach((record: any) => {
+                    if (!record.images) {
+                        return;
+                    }
                     let newPainting: Painting = <Painting>{};
                     newPainting.dated = record.dated;
                     newPainting.description = record.description;
