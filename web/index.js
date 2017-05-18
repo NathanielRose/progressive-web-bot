@@ -16,6 +16,11 @@
             webSocket: true
         });
 
+        var speechOptions = {
+            speechRecognizer: new BotChat.SpeechRecognition.CognitiveServicesSpeechRecognizer( { subscriptionKey: '86d6de9db3a342619caf3160938799d4' } ),
+            speechSynthesizer: new BotChat.SpeechSynthesis.BrowserSpeechSynthesizer()
+        }
+
         botConnection.connectionStatus$
             .filter(s => s === 2) //when the status is 'connected' (2)
             .subscribe(c => {
@@ -24,7 +29,9 @@
                 app = BotChat.App({
                     botConnection: botConnection,
                     user: { id: botConnection.conversationId }, //you could define you own userid here
-                    resize: 'detect'
+                    resize: 'detect',
+                    locale: "en-us",
+                    speechOptions: speechOptions
                 }, document.getElementById("bot"));
 
             });
