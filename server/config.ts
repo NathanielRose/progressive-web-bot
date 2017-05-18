@@ -1,3 +1,5 @@
+    declare var global: any;
+
 const config = {
     bot: {
         //David key
@@ -23,3 +25,14 @@ const config = {
 };
 
 export = config;
+
+module.exports = function () {
+
+    //process.env variables defined in Azure if deployed to a web app.
+
+    global.searchName = process.env.AZURE_SEARCH_NAME ? process.env.AZURE_SEARCH_NAME : "<???>";
+    global.indexName = process.env.INDEX_NAME ? process.env.AZURE_SEARCH_NAME : "index2";
+    global.searchKey = process.env.INDEX_NAME ? process.env.AZURE_SEARCH_KEY : "<???>";
+    global.queryString = 'https://' + global.searchName + '.search.windows.net/indexes/' + global.indexName + '/docs?api-key=' + global.searchKey + '&api-version=2015-02-28&';
+
+}

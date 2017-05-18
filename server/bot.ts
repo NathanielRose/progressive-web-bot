@@ -1,12 +1,56 @@
 import builder = require('botbuilder');
 import config = require('./config');
 import harvard = require('./HarvardClientLib');
+var request = require('request');
 
 enum ClientEvents {
     Refresh3DPaintings,
     LaunchTextToSpeech,
     LaunchSpeechToText
 }
+
+    var searchName: string = "harvardmuseum";
+    var indexName: string = "temp2";
+    var searchKey: string = "B0DB7CCD7618531AF82FC063971A2D91";
+    var queryString: string = 'https://harvardmuseum.search.windows.net/indexes/temp2/docs?api-version=2016-09-01&search=*';
+
+
+    function searchQueryStringBuilder (query : string): any {
+
+        
+        var sendMessage = {
+
+            url: `${queryString}&${query}`,
+
+            headers: {
+
+                'api-key': `${searchKey}`
+            }
+        }
+        return (sendMessage);
+    }
+
+
+
+    function performSearchQuery (queryString: any, callback: any) {
+
+        request(queryString, function (error: any, response: any, body: any) {
+
+            if (!error && response && response.statusCode == 200) {
+
+                var result = JSON.parse(body);
+
+                callback(null, result);
+
+            } else {
+
+                callback(error, null);
+
+            }
+
+        })
+
+    }
 
 class Bot {
     public connector: builder.ConsoleConnector | builder.ChatConnector;
@@ -26,15 +70,19 @@ class Bot {
         this.init();
     }
 
+
+    
+
+
+
+
     public initializeForConsole() {
         this.connector = new builder.ConsoleConnector();
         this.init();
     }
 
     private registerDialogs() {
-        this.bot.dialog('/', this.dialog);
-
-        //here is a classic way of greeting a new user and explaining how things work
+        
         this.bot.on('conversationUpdate', (message) => {
             if (message.membersAdded) {
                 message.membersAdded.forEach((identity: any) => {
@@ -43,13 +91,142 @@ class Bot {
                             .address(message.address)
                             .text("Hello! I am the art bot. You can say: 'what did picasso paint?'");
                         this.bot.send(reply);
+// need to push to prompt for dialog
+
                     }
                 });
             }
         });
+
+        this.bot.dialog('/', this.dialog);
+    
+
+        this.bot.dialog('/promptArtist', [
+        function (session) {
+        var choices = ["Artist", "Era"]
+        builder.Prompts.choice(session, "How would you like to explore the gallery?", choices);
+        },
+
+            function (session, results) {
+
+                if (results.response) {
+
+                    var selection = results.response.entity;
+
+                    // route to corresponding dialogs
+
+                    switch (selection) {
+
+                        case "Artist":
+                            session.replaceDialog('/ArtistList');
+                            break;
+
+                        case "Era":
+                            session.replaceDialog('/ArtistEra');
+                            break;
+
+                        default:
+                            session.reset('/');
+                            break;
+
+                    }
+
+                }
+
+            }
+
+        ]);
+    
+
+    this.bot.dialog('/ArtistList', [
+
+            function (session) {
+
+                //Syntax for faceting results by 'Artist'
+
+                var queryString: any = searchQueryStringBuilder('facet=people');
+
+                performSearchQuery(queryString, function (err: any, result: any) {
+
+                    if (err) {
+
+                        console.log("Error when faceting by people:" + err);
+
+                    } else if (result && result['@search.facets'] && result['@search.facets'].people) {
+
+                        var artists = result['@search.facets'].people;
+
+                        var ArtistNames: any = [];
+
+                        //Pushes the name of each era into an array
+
+                        artists.forEach(function (artist: any, i: any) {
+
+                            ArtistNames.push(artist['value'] + " (" + artist.count + ")");
+
+                        })    
+
+                        //Prompts the user to select the era he/she is interested in
+
+                        builder.Prompts.choice(session, "Which painter are you interested in?", ArtistNames);
+
+                    } else {
+
+                        session.endDialog("I couldn't find the Artist");
+
+                    }
+
+                })
+
+            },
+
+            function (session, results) {
+
+                //Chooses just the era name - parsing out the count
+
+                var era = results.response.entity.split(' ')[0];;
+
+
+
+                //Syntax for filtering results by 'era'. Note the $ in front of filter (OData syntax)
+
+                var queryString = searchQueryStringBuilder('$filter=people eq ' + '\'' + era + '\'');
+
+
+
+                performSearchQuery(queryString, function (err: any, result: any) {
+
+                    if (err) {
+
+                        console.log("Error when filtering by genre: " + err);
+
+                    } else if (result && result['value'] && result['value'][0]) {
+
+                        //If we have results send them to the showResults dialog (acts like a decoupled view)
+
+                        session.replaceDialog('/showResults', { result });
+
+                    } else {
+
+                        session.endDialog("I couldn't find any musicians in that era :0");
+
+                    }
+
+                })
+
+            }
+
+        ]);
+
     }
 
+    
+
+
     private bindDialogs() {
+
+
+
         this.bot.dialog("/artist", (session, args) => {
             if (!args.entities) {
                 session.endDialog("I did not understand :)");
@@ -84,6 +261,7 @@ class Bot {
         })
 
         this.dialog.matches('artist', '/artist');
+        this.dialog.matches('listartists','/promptArtist');
     }
 
     private initBackChannel() {
