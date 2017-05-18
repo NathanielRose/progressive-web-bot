@@ -6,7 +6,9 @@ var request = require('request');
 enum ClientEvents {
     Refresh3DPaintings,
     LaunchTextToSpeech,
-    LaunchSpeechToText
+    LaunchSpeechToText,
+    RequestSelected3DPainting,
+    PaintingInfo
 }
 
 var searchName: string = "harvardmuseum";
@@ -102,6 +104,10 @@ class Bot {
             }
         ]);
 
+        this.bot.dialog('/sendPaintingInfo', (session) => {
+            this.sendEvent(session, ClientEvents.RequestSelected3DPainting);
+        });
+
         this.bot.dialog('/ArtistList', [
             (session) => {
 
@@ -171,8 +177,53 @@ class Bot {
 
             let Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
 
-            this.sendPaintings(session, Artist.entity);
+            if (!Artist) {
+                session.endDialog("I did not understand the artist you are looking for :)");
+            }
+            else {
+                this.sendPaintings(session, Artist.entity);
+            }
         });
+    }
+
+    private bindDialogs() {
+        this.dialog.matches(/What am I looking at\?/i, '/sendPaintingInfo');
+        this.dialog.matches(/What is this\?/i, '/sendPaintingInfo');
+        this.dialog.matches('artist', '/artist');
+        this.dialog.matches('listartists', '/promptArtist');
+    }
+
+    private initBackChannel() {
+        this.bot.on("message", (message) => {
+
+        });
+
+        this.bot.on("event", (message) => {
+            if (message.name === ClientEvents[ClientEvents.PaintingInfo]) {
+                var textToSend;
+                let address = message.address;
+                if (message.value) {
+                    let painting = <harvard.HarvardArtMuseums.Painting>message.value;
+                    textToSend = `This painting is named: **${painting.title}**, and was created by: **${painting.people.name}**`;
+                }
+                else {
+                    textToSend = "You are not looking directly at any painting.";
+                }
+                delete address.conversationId;
+                let msg = new builder.Message()
+                    .address(address)
+                    .text(textToSend);
+                this.bot.send(msg);
+            }
+        });
+    }
+
+    private sendEvent(session: any, eventType: ClientEvents, value?: any) {
+        var msg: any = new builder.Message();
+        msg.data.type = "event";
+        msg.data.name = ClientEvents[eventType];
+        msg.data.value = value;
+        session.send(msg);
     }
 
     private sendPaintings(session: builder.Session, artistName: string) {
@@ -199,37 +250,6 @@ class Bot {
                 this.sendEvent(session, ClientEvents.Refresh3DPaintings, results);
             }
         });
-    }
-
-    private bindDialogs() {
-        this.dialog.matches('artist', '/artist');
-        this.dialog.matches('listartists', '/promptArtist');
-    }
-
-    private initBackChannel() {
-        this.bot.on("message", (message) => {
-
-        });
-
-        this.bot.on("event", (message) => {
-            if (message.name === "paintingInfo") {
-                let address = message.address;
-                let painting = <harvard.HarvardArtMuseums.Painting>message.value;
-                delete address.conversationId;
-                let msg = new builder.Message()
-                    .address(address)
-                    .text(`This painting is named: **${painting.title}**, and was created by: **${painting.people.name}**`);
-                this.bot.send(msg);
-            }
-        });
-    }
-
-    private sendEvent(session: any, eventType: ClientEvents, value?: any) {
-        var msg: any = new builder.Message();
-        msg.data.type = "event";
-        msg.data.name = ClientEvents[eventType];
-        msg.data.value = value;
-        session.send(msg);
     }
 
     private createHeroCard(session: builder.Session, painting: harvard.HarvardArtMuseums.Painting): builder.HeroCard {

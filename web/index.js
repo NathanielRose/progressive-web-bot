@@ -41,6 +41,10 @@
             .subscribe(activity => refresh3DPaintings(activity.value));
 
         botConnection.activity$
+            .filter(activity => activity.type === "event" && activity.name === "RequestSelected3DPainting")
+            .subscribe(activity => sendSelectedPaintingInfo());
+
+        botConnection.activity$
             .filter(activity => activity.type === "event" && activity.name === "launchAudio")
             .subscribe(activity => launchAudio());
 
@@ -196,9 +200,18 @@
             // if the click hits the wall object, we change the impact picture position
             if (pickResult.hit && pickResult.pickedMesh.paintingData) {
                 console.log(pickResult.pickedMesh.paintingData);
-                sendEventThroughDirectLine("paintingInfo", pickResult.pickedMesh.paintingData);
+                sendEventThroughDirectLine("PaintingInfo", pickResult.pickedMesh.paintingData);
             }
         });
+    }
+
+    const sendSelectedPaintingInfo = function (){
+        if(currentPaintingSelected) {
+            sendEventThroughDirectLine("PaintingInfo", currentPaintingSelected.paintingData);
+        }
+        else {
+            sendEventThroughDirectLine("PaintingInfo", undefined);
+        }
     }
 
     var createTargetMesh = function () {
