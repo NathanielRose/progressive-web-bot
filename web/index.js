@@ -150,7 +150,7 @@
         var createScene = function () {
             BABYLON.SceneLoader.ForceFullSceneLoadingForIncremental = true;
 
-            BABYLON.SceneLoader.Load("http://www.babylonjs.com/Scenes/Espilit/",
+            BABYLON.SceneLoader.Load("https://www.babylonjs.com/Scenes/Espilit/",
                 "Espilit.babylon", engine, function (newScene) {
                     scene = newScene;
                     // The main file has been loaded but let's wait for all ressources

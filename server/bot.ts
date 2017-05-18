@@ -62,7 +62,7 @@ class Bot {
                 let heroCardList: builder.AttachmentType[] = [];
 
                 results.forEach((painting) => {
-                    painting.image.iiifbaseuri = painting.image.iiifbaseuri.replace("https", "http") + "/full/pct:20/0/native.jpg";
+                    painting.image.iiifbaseuri = painting.image.iiifbaseuri + "/full/pct:20/0/native.jpg";
                     heroCardList.push(this.createHeroCard(session, painting));
                 });
 
