@@ -9,48 +9,12 @@ enum ClientEvents {
     LaunchSpeechToText
 }
 
-    var searchName: string = "harvardmuseum";
-    var indexName: string = "temp2";
-    var searchKey: string = "B0DB7CCD7618531AF82FC063971A2D91";
-    var queryString: string = 'https://harvardmuseum.search.windows.net/indexes/temp2/docs?api-version=2016-09-01&search=*';
+var searchName: string = "harvardmuseum";
+var indexName: string = "temp2";
+var searchKey: string = "B0DB7CCD7618531AF82FC063971A2D91";
+var queryString: string = 'https://harvardmuseum.search.windows.net/indexes/temp2/docs?api-version=2016-09-01&search=*';
 
 
-    function searchQueryStringBuilder (query : string): any {
-
-        
-        var sendMessage = {
-
-            url: `${queryString}&${query}`,
-
-            headers: {
-
-                'api-key': `${searchKey}`
-            }
-        }
-        return (sendMessage);
-    }
-
-
-
-    function performSearchQuery (queryString: any, callback: any) {
-
-        request(queryString, function (error: any, response: any, body: any) {
-
-            if (!error && response && response.statusCode == 200) {
-
-                var result = JSON.parse(body);
-
-                callback(null, result);
-
-            } else {
-
-                callback(error, null);
-
-            }
-
-        })
-
-    }
 
 class Bot {
     public connector: builder.ConsoleConnector | builder.ChatConnector;
@@ -70,19 +34,35 @@ class Bot {
         this.init();
     }
 
-
-    
-
-
-
-
     public initializeForConsole() {
         this.connector = new builder.ConsoleConnector();
         this.init();
     }
 
+    private searchQueryStringBuilder(query: string): any {
+        var sendMessage = {
+            url: `${queryString}&${query}`,
+            headers: {
+                'api-key': `${searchKey}`
+            }
+        }
+        return (sendMessage);
+    }
+
+    private performSearchQuery(queryString: any, callback: any) {
+        request(queryString, function (error: any, response: any, body: any) {
+            if (!error && response && response.statusCode == 200) {
+                var result = JSON.parse(body);
+                callback(null, result);
+            } else {
+                callback(error, null);
+            }
+        });
+    }
+
     private registerDialogs() {
-        
+        this.bot.dialog('/', this.dialog);
+
         this.bot.on('conversationUpdate', (message) => {
             if (message.membersAdded) {
                 message.membersAdded.forEach((identity: any) => {
@@ -91,141 +71,81 @@ class Bot {
                             .address(message.address)
                             .text("Hello! I am the art bot. You can say: 'what did picasso paint?'");
                         this.bot.send(reply);
-// need to push to prompt for dialog
-
+                        // need to push to prompt for dialog
                     }
                 });
             }
         });
 
-        this.bot.dialog('/', this.dialog);
-    
-
         this.bot.dialog('/promptArtist', [
-        function (session) {
-        var choices = ["Artist", "Era"]
-        builder.Prompts.choice(session, "How would you like to explore the gallery?", choices);
-        },
-
+            function (session) {
+                var choices = ["Artist", "Era"]
+                builder.Prompts.choice(session, "How would you like to explore the gallery?", choices);
+            },
             function (session, results) {
-
                 if (results.response) {
-
                     var selection = results.response.entity;
-
                     // route to corresponding dialogs
 
                     switch (selection) {
-
                         case "Artist":
                             session.replaceDialog('/ArtistList');
                             break;
-
                         case "Era":
                             session.replaceDialog('/ArtistEra');
                             break;
-
                         default:
                             session.reset('/');
                             break;
-
                     }
-
                 }
-
             }
-
         ]);
-    
 
-    this.bot.dialog('/ArtistList', [
-
+        this.bot.dialog('/ArtistList', [
             function (session) {
 
                 //Syntax for faceting results by 'Artist'
+                var queryString: any = this.searchQueryStringBuilder('facet=people');
 
-                var queryString: any = searchQueryStringBuilder('facet=people');
-
-                performSearchQuery(queryString, function (err: any, result: any) {
-
+                this.performSearchQuery(queryString, function (err: any, result: any) {
                     if (err) {
-
                         console.log("Error when faceting by people:" + err);
-
                     } else if (result && result['@search.facets'] && result['@search.facets'].people) {
-
                         var artists = result['@search.facets'].people;
-
                         var ArtistNames: any = [];
 
                         //Pushes the name of each era into an array
-
                         artists.forEach(function (artist: any, i: any) {
-
                             ArtistNames.push(artist['value'] + " (" + artist.count + ")");
-
-                        })    
+                        });
 
                         //Prompts the user to select the era he/she is interested in
-
                         builder.Prompts.choice(session, "Which painter are you interested in?", ArtistNames);
-
                     } else {
-
                         session.endDialog("I couldn't find the Artist");
-
                     }
-
-                })
-
-            },
-
-            function (session, results) {
-
+                });
+            }, function (session, results) {
                 //Chooses just the era name - parsing out the count
-
                 var era = results.response.entity.split(' ')[0];;
 
-
-
                 //Syntax for filtering results by 'era'. Note the $ in front of filter (OData syntax)
+                var queryString = this.searchQueryStringBuilder('$filter=people eq ' + '\'' + era + '\'');
 
-                var queryString = searchQueryStringBuilder('$filter=people eq ' + '\'' + era + '\'');
-
-
-
-                performSearchQuery(queryString, function (err: any, result: any) {
+                this.performSearchQuery(queryString, function (err: any, result: any) {
 
                     if (err) {
-
                         console.log("Error when filtering by genre: " + err);
-
                     } else if (result && result['value'] && result['value'][0]) {
-
                         //If we have results send them to the showResults dialog (acts like a decoupled view)
-
                         session.replaceDialog('/showResults', { result });
-
                     } else {
-
                         session.endDialog("I couldn't find any musicians in that era :0");
-
                     }
-
                 })
-
             }
-
         ]);
-
-    }
-
-    
-
-
-    private bindDialogs() {
-
-
 
         this.bot.dialog("/artist", (session, args) => {
             if (!args.entities) {
@@ -234,34 +154,39 @@ class Bot {
             }
 
             let Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
+            this.sendPaintings(session, Artist.entity);
+        });
+    }
 
-            this.harvardClient.searchFor(Artist.entity, (results) => {
-                let heroCardList: builder.AttachmentType[] = [];
+    private sendPaintings(session: builder.Session, artist: string) {
+        this.harvardClient.searchFor(artist, (results) => {
+            let heroCardList: builder.AttachmentType[] = [];
 
-                results.forEach((painting) => {
-                    painting.image.iiifbaseuri = painting.image.iiifbaseuri + "/full/pct:20/0/native.jpg";
-                    heroCardList.push(this.createHeroCard(session, painting));
-                });
-
-                let msg;
-                if (heroCardList.length > 0) {
-                    msg = new builder.Message(session).attachments(heroCardList);
-                    msg.attachmentLayout(builder.AttachmentLayout.carousel);
-                }
-                else {
-                    msg = 'I did not find anything';
-                }
-
-                session.endDialog(msg);
-
-                if (results.length > 0) {
-                    this.sendEvent(session, ClientEvents.Refresh3DPaintings, results);
-                }
+            results.forEach((painting) => {
+                painting.image.iiifbaseuri = painting.image.iiifbaseuri + "/full/pct:20/0/native.jpg";
+                heroCardList.push(this.createHeroCard(session, painting));
             });
-        })
 
+            let msg;
+            if (heroCardList.length > 0) {
+                msg = new builder.Message(session).attachments(heroCardList);
+                msg.attachmentLayout(builder.AttachmentLayout.carousel);
+            }
+            else {
+                msg = 'I did not find anything';
+            }
+
+            session.endDialog(msg);
+
+            if (results.length > 0) {
+                this.sendEvent(session, ClientEvents.Refresh3DPaintings, results);
+            }
+        });
+    }
+
+    private bindDialogs() {
         this.dialog.matches('artist', '/artist');
-        this.dialog.matches('listartists','/promptArtist');
+        this.dialog.matches('listartists', '/promptArtist');
     }
 
     private initBackChannel() {
