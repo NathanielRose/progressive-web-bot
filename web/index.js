@@ -26,7 +26,7 @@
             .subscribe(c => {
 
                 //everything is setup in DirectLine, we can create the Chatbot control
-                app = BotChat.App({
+                BotChat.App({
                     botConnection: botConnection,
                     user: { id: botConnection.conversationId }, //you could define you own userid here
                     resize: 'detect',
