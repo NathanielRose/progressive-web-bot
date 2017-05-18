@@ -228,18 +228,18 @@ class Bot {
 
 
         this.bot.dialog("/artist", (session, args) => {
-            if(!args.entities){
+            if (!args.entities) {
                 session.endDialog("I did not understand :)");
                 return;
             }
-            
+
             let Artist = builder.EntityRecognizer.findEntity(args.entities, 'Artist');
 
             this.harvardClient.searchFor(Artist.entity, (results) => {
                 let heroCardList: builder.AttachmentType[] = [];
 
                 results.forEach((painting) => {
-                    painting.image.iiifbaseuri = painting.image.iiifbaseuri.replace("https", "http") + "/full/pct:20/0/native.jpg";
+                    painting.image.iiifbaseuri = painting.image.iiifbaseuri + "/full/pct:20/0/native.jpg";
                     heroCardList.push(this.createHeroCard(session, painting));
                 });
 
@@ -254,9 +254,9 @@ class Bot {
 
                 session.endDialog(msg);
 
-                if(results.length > 0) {
+                if (results.length > 0) {
                     this.sendEvent(session, ClientEvents.Refresh3DPaintings, results);
-                }                
+                }
             });
         })
 
@@ -270,13 +270,20 @@ class Bot {
         });
 
         this.bot.on("event", (message) => {
-            if (message.name === "myCustomEvent") {
+            if (message.name === "paintingInfo") {
+                let address = message.address;
+                let painting = <harvard.HarvardArtMuseums.Painting>message.value;
+                delete address.conversationId;
+                let msg = new builder.Message()
+                    .address(address)
+                    .text(`This painting is named: **${painting.title}**, and was created by: **${painting.people.name}**`);
+                this.bot.send(msg);
             }
         });
     }
 
     private sendEvent(session: any, eventType: ClientEvents, value?: any) {
-        var msg:any = new builder.Message();
+        var msg: any = new builder.Message();
         msg.data.type = "event";
         msg.data.name = ClientEvents[eventType];
         msg.data.value = value;
