@@ -78,11 +78,11 @@ class Bot {
         });
 
         this.bot.dialog('/promptArtist', [
-            function (session) {
+            (session) => {
                 var choices = ["Artist", "Era"]
                 builder.Prompts.choice(session, "How would you like to explore the gallery?", choices);
             },
-            function (session, results) {
+            (session, results) => {
                 if (results.response) {
                     var selection = results.response.entity;
                     // route to corresponding dialogs
@@ -103,7 +103,7 @@ class Bot {
         ]);
 
         this.bot.dialog('/ArtistList', [
-            function (session) {
+            (session) => {
 
                 //Syntax for faceting results by 'Artist'
                 var queryString: any = this.searchQueryStringBuilder('facet=people');
@@ -126,7 +126,7 @@ class Bot {
                         session.endDialog("I couldn't find the Artist");
                     }
                 });
-            }, function (session, results) {
+            }, (session, results) => {
                 //Chooses just the era name - parsing out the count
                 var era = results.response.entity.split(' ')[0];;
 
