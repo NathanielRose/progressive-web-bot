@@ -62,7 +62,7 @@
     const handleActivity = function (activity) {
         if (activity.text) {
             console.log("A text message was sent: " + activity.text);
-            if (bingClientTTS && activity.from.id !== botConnection.conversationId) {
+            if (bingClientTTS && activity.from.id !== botConnection.conversationId && activity.text.length < 100) {
                 bingClientTTS.synthesize(activity.text);
             }
         }
