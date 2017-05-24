@@ -11,9 +11,9 @@ enum ClientEvents {
     PaintingInfo
 }
 
-var searchName: string = "harvardmuseum";
-var indexName: string = "temp2";
-var searchKey: string = "B0DB7CCD7618531AF82FC063971A2D91";
+var searchName: string = "harvardmuseum"; // Name of search
+var indexName: string = "temp2";  // name of the second index build on Hardward data
+var searchKey: string = "B0DB7CCD7618531AF82FC063971A2D91";  // Need to place this into Azure
 var queryString: string = 'https://harvardmuseum.search.windows.net/indexes/temp2/docs?api-version=2016-09-01&search=*';
 
 
@@ -41,6 +41,7 @@ class Bot {
         this.init();
     }
 
+// Build the message for the Azure Search. Added the new 2017 API syntax which adds the API Key into the header
     private searchQueryStringBuilder(query: string): any {
         var sendMessage = {
             url: `${queryString}&${query}`,
@@ -51,6 +52,7 @@ class Bot {
         return (sendMessage);
     }
 
+// Azure Seach Helper funtion which makes the correct call to Azure search and sends response to the function call back
     private performSearchQuery(queryString: any, callback: any) {
         request(queryString, function (error: any, response: any, body: any) {
             if (!error && response && response.statusCode == 200) {
@@ -62,6 +64,7 @@ class Bot {
         });
     }
 
+// Set up all the Dialog Routes
     private registerDialogs() {
         this.bot.dialog('/', this.dialog);
 
@@ -93,7 +96,7 @@ class Bot {
                         case "Artist":
                             session.replaceDialog('/ArtistList');
                             break;
-                        case "Era":
+                        case "Era": // Needs to be added to code
                             session.replaceDialog('/ArtistEra');
                             break;
                         default:
@@ -111,61 +114,32 @@ class Bot {
         this.bot.dialog('/ArtistList', [
             (session) => {
 
-                //Syntax for faceting results by 'Artist'
+                //Uses Azure Search to find all the artists that are contained within the Harvard API
                 var queryString: any = this.searchQueryStringBuilder('facet=people');
 
+                // Perform the query and if succesful search for all the search.facets that are returned and place in an Array
                 this.performSearchQuery(queryString, function (err: any, result: any) {
                     if (err) {
-                        console.log("Error when faceting by people:" + err);
+                        console.log("Error when finding all the Artists:" + err);
                     } else if (result && result['@search.facets'] && result['@search.facets'].people) {
                         var artists = result['@search.facets'].people;
                         var ArtistNames: any = [];
 
-                        //Pushes the name of each era into an array
+                        //Pushes the name of each Artist into an array
                         artists.forEach(function (artist: any, i: any) {
                             ArtistNames.push(artist['value'] + " (" + artist.count + ")");
                         });
 
-                        //Prompts the user to select the era he/she is interested in
+                        //Prompts the user to select the Artist he/she is interested in
                         builder.Prompts.choice(session, "Which painter are you interested in?", ArtistNames);
                     } else {
                         session.endDialog("I couldn't find the Artist");
                     }
                 });
             }, (session, results) => {
-                //Chooses just the era name - parsing out the count
+                //Chooses just the Artist name - parsing out the count
                 var artistName = results.response.entity.split(' (')[0];;
                 this.sendPaintings(session, artistName);
-
-                //TODO : Use this when we will have everything in Azure Search
-
-                // //Syntax for filtering results by 'era'. Note the $ in front of filter (OData syntax)
-                // var queryString = this.searchQueryStringBuilder('$filter=people eq ' + '\'' + artistName + '\'');
-
-                // this.performSearchQuery(queryString, (err: any, result: any) => {
-                //     if (err) {
-                //         console.log("Error when filtering by genre: " + err);
-                //     } else if (result && result['value'] && result['value'][0]) {
-                //         //If we have results send them to the showResults dialog (acts like a decoupled view)
-                //         let paintings: any[] = [];
-                //         session.endDialog(`Here is what I found for ${artistName}`);
-                //         result.value.forEach((value: any) => {
-                //             paintings.push({
-                //                 title: value.title,
-                //                 people: {
-                //                     name: value.people
-                //                 },
-                //                 image: {
-                //                     iiifbaseuri: value.primaryimageurl
-                //                 }
-                //             })
-                //         });
-
-                //         //session.replaceDialog('/showResults', { result });
-                //     } else {
-                //         session.endDialog("I couldn't find any paintings for this artist.");
-                //     }
-                // })
             }
         ]);
 
