@@ -11,7 +11,16 @@
             "program": "${workspaceRoot}/server.js",
             "outFiles": [
                 "${workspaceRoot}/out/**/*.js"
-            ]
+            ],
+            "env" : {
+                "BOT_APP_ID" : "fc8c4331-3e8e-48c2-b6c8-15df6a54e84c",
+                "BOT_KEY" : "b1jZdehvaAFU7FKazSYkRu8",
+                "LUIS_URL" : "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/8204e650-feb0-471d-ab15-2813c0a33447?subscription-key=252d60e7d01c4236a6a7e77d03c558ff&timezoneOffset=0&verbose=true&q=",
+                "SEARCHNAME" : "harvardmuseum",
+                "SEARCHINDEX" : "temp2",
+                "SEARCHKEY" : "B0DB7CCD7618531AF82FC063971A2D91",
+                "SEARCHQUERY" : "https://harvardmuseum.search.windows.net/indexes/temp2/docs?api-version=2016-09-01&search=*"
+            }
         }
     ]
 }

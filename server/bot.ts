@@ -11,10 +11,10 @@ enum ClientEvents {
     PaintingInfo
 }
 
-var searchName: string = "harvardmuseum"; // Name of search
-var indexName: string = "temp2";  // name of the second index build on Hardward data
-var searchKey: string = "B0DB7CCD7618531AF82FC063971A2D91";  // Need to place this into Azure
-var queryString: string = 'https://harvardmuseum.search.windows.net/indexes/temp2/docs?api-version=2016-09-01&search=*';
+var searchName: string = config.azuresearch.searchName; // Name of search
+var indexName: string = config.azuresearch.indexname;  // name of the second index build on Hardward data
+var searchKey: string = config.azuresearch.searchKey;  // Need to place this into Azure
+var queryString: string = config.azuresearch.searchquery;  //the query API template
 
 
 
