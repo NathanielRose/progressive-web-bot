@@ -30,6 +30,9 @@ var HarvardArtMuseums;
                 let result = JSON.parse(jsonResult);
                 if (result.records) {
                     result.records.forEach((record) => {
+                        if (!record.images) {
+                            return;
+                        }
                         let newPainting = {};
                         newPainting.dated = record.dated;
                         newPainting.description = record.description;
@@ -101,4 +104,3 @@ var HarvardArtMuseums;
     }
     HarvardArtMuseums.Client = Client;
 })(HarvardArtMuseums = exports.HarvardArtMuseums || (exports.HarvardArtMuseums = {}));
-//# sourceMappingURL=HarvardClientLib.js.map
