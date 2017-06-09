@@ -1,6 +1,6 @@
-node_modules/
+bot/node_modules/
 *.log
-server.js.map
-server.js
-/server/*.js
-/server/*.js.map
+bot/server.js.map
+bot/server.js
+bot/server/*.js
+bot/server/*.js.map
