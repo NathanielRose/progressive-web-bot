@@ -5,8 +5,9 @@
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "gulp --gulpfile=./gulpfile.js",
-    "start": "node ./server.js"
+    "build": "webpack",
+    "watch": "webpack --progress --watch",
+    "start": "http-server web"
   },
   "keywords": [],
   "author": "",
@@ -20,11 +21,17 @@
     "directline-client": "^1.0.2",
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.1.6",
+    "prague-botframework": "^0.12.1",
+    "prague-botframework-browserbot": "^0.12.1",
+    "request": "2.81.0",
     "restify": "^4.3.0",
     "rx": "^4.1.0",
-    "typescript": "^2.3.2",
-    "web-push": "^3.2.2",
-    "xhr2": "*",
-    "request": "2.81.0"
+    "typescript": "^2.4.2",
+    "xhr2": "*"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.2.2",
+    "source-map-loader": "^0.2.1",
+    "webpack": "^3.4.1"
   }
 }

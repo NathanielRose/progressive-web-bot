@@ -2,8 +2,30 @@
 <html>
 
 <head>
-    <!--<link href="https://unpkg.com/botframework-webchat/botchat.css" rel="stylesheet" />-->
     <link href="botchat.css" rel="stylesheet" />
+    <style>
+        .example {
+            float: left;
+            margin-right: 20px;
+            width: 300px;
+        }
+
+        #bot {
+            border: 1px solid #333;
+            float: left;
+            height: 600px;
+            width: 420px;
+            position: relative;
+        }
+
+        #bot.wc-wide {
+            width: 768px;
+        }
+
+        #bot.wc-narrow {
+            width: 320px;
+        }
+    </style>
     <link href="style.css" rel="stylesheet" />
     <script src="https://preview.babylonjs.com/babylon.js"></script>
 </head>
@@ -14,8 +36,6 @@
         <canvas id="scene">
         </canvas>
     </div>
-    <script src="https://unpkg.com/botframework-directlinejs/directLine.js"></script>
-    <!--<script src="https://unpkg.com/botframework-webchat/botchat.js"></script>-->
     <script src="botchat.js"></script>
     <script src="BingSpeech.js"></script>
     <script src="hand.js"></script>

@@ -6,6 +6,10 @@
         "preserveConstEnums": true,
         "sourceMap": true,
         "target": "es6",
+        "lib": [
+            "dom",
+            "es2017"
+        ],
         "types": [
             "node"
         ]
