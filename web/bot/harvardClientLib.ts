@@ -30,7 +30,7 @@ export module HarvardArtMuseums {
         iiifbaseuri: string;
     }
 
-   export class Client {
+    export class Client {
         private _key: string;
         private _baseUrl = "http://api.harvardartmuseums.org/object?apikey=";
 
@@ -84,14 +84,13 @@ export module HarvardArtMuseums {
 
         public async makeHttpRequest(actionType: string, url: string, isArrayBuffer: boolean = false, optionalHeaders?: HttpHeader[], dataToSend?: any): Promise<any> {
             return new Promise<any>((resolve, reject) => {
-                var xhr2 = require('xhr2');
-                var xhr = new xhr2.XMLHttpRequest();
 
+                var xhr = new XMLHttpRequest();
                 if (isArrayBuffer) {
                     xhr.responseType = 'arraybuffer';
                 }
 
-                xhr.onreadystatechange = function (event:any) {
+                xhr.onreadystatechange = function (event: any) {
                     if (xhr.readyState !== 4) return;
                     if (xhr.status >= 200 && xhr.status < 300) {
                         if (!isArrayBuffer) {

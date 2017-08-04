@@ -7,66 +7,43 @@ declare var BingSpeech:any;
 
 (function () {
 
-    const DIRECTLINE_SECRET = "X6trl8efldA.cwA._bI.AGbTWeLaR7XS5xqudsCYG7jN4SWj_5_YAZI4yNgiVWE"; //you get that from the direct line channel at dev.botframework.com
-    const DIRECTLINE_SECRET_davrous = "YgAIrcFhc5M.cwA.0Dk.BuBNtSXA13mjj6JOVWQFIzazJRkrjXjEjPLwldR-Oaw"; //you get that from the direct line channel at dev.botframework.com
-    const DIRECTLINE_SECRET_pierlag = "0Ze9WPEvj18.cwA.mxg.BWNltLlA6IJ_Fba66GgKWWp-z7ypmvQb4q7TyKOG_nk"; //you get that from the direct line channel at dev.botframework.com
-
-
     var botConnection: any;
     var sceneReady: any = false;
     var bingClientTTS: any = null;
+    var bot: BotLogic.Bot;
 
     var startChat = function () {
-        //if it is a brand new conversation, we create a fresh one
-        // botConnection = new DirectLine.DirectLine({
-        //     secret: DIRECTLINE_SECRET,
-        //     webSocket: true
-        // });
 
         var speechOptions = {
-            // speechRecognizer: new BotChat.SpeechRecognition.CognitiveServicesSpeechRecognizer({ subscriptionKey: '86d6de9db3a342619caf3160938799d4' }),
-            // speechSynthesizer: new BotChat.SpeechSynthesis.BrowserSpeechSynthesizer()
+            speechRecognizer: new BotChat.SpeechRecognition.CognitiveServicesSpeechRecognizer({ subscriptionKey: '86d6de9db3a342619caf3160938799d4' }),
+            speechSynthesizer: new BotChat.SpeechSynthesis.BrowserSpeechSynthesizer()
         }
 
-        var bot = new BotLogic.Bot();
+        bot = new BotLogic.Bot(eventHandler);
         bot.initializeForWeb();
 
         BotChat.App({
             botConnection: window["browserBot"],
             user: { id: 'localuser' },
             bot: { id: 'localbot' },
-            resize: 'detect'
+            resize: 'detect',
+            speechOptions: speechOptions,
         }, document.getElementById("bot"));
-
-        // botConnection.connectionStatus$
-        //     .filter(s => s === 2) //when the status is 'connected' (2)
-        //     .subscribe(c => {
-
-        //         //everything is setup in DirectLine, we can create the Chatbot control
-        //         BotChat.App({
-        //             botConnection: botConnection,
-        //             user: { id: botConnection.conversationId }, //you could define you own userid here
-        //             resize: 'detect',
-        //             locale: "en-us",
-        //             speechOptions: speechOptions
-        //         }, document.getElementById("bot"));
-
-        //     });
-
-        // botConnection.activity$
-        //     .filter(activity => activity.type === "event" && activity.name === "Refresh3DPaintings")
-        //     .subscribe(activity => refresh3DPaintings(activity.value));
-
-        // botConnection.activity$
-        //     .filter(activity => activity.type === "event" && activity.name === "RequestSelected3DPainting")
-        //     .subscribe(activity => sendSelectedPaintingInfo());
-
-        // botConnection.activity$
-        //     .filter(activity => activity.type === "event" && activity.name === "launchAudio")
-        //     .subscribe(activity => launchAudio());
-
-        // botConnection.activity$.subscribe(handleActivity);
     };
+
+    var eventHandler = (EventType: BotLogic.ClientEvents, data:any) => {
+        switch(EventType){
+            case BotLogic.ClientEvents.Refresh3DPaintings:
+                refresh3DPaintings(data);
+                break;
+            case BotLogic.ClientEvents.RequestSelected3DPainting:
+                sendSelectedPaintingInfo();
+                break;
+            case BotLogic.ClientEvents.LaunchTextToSpeech:
+                launchAudio();
+                break;
+        }
+    }
 
     var launchAudio = function () {
         // Initialise Bing Speek 
@@ -86,31 +63,6 @@ declare var BingSpeech:any;
     //     else if (activity.attachments && activity.attachments.length > 0) {
     //         console.log("A herocard style message was sent: ", activity.attachments);
     //     }
-    // }
-
-    // const sendMessageThroughDirectLine = function (message) {
-    //     botConnection.postActivity({
-    //         type: "message",
-    //         text: message,
-    //         locale: "en-US",
-    //         textFormat: "plain",
-    //         timestamp: new Date().toISOString(),
-    //         from: { id: botConnection.conversationId },
-    //         channelData: {
-    //             clientActivityId: 1
-    //         }
-    //     }).subscribe(_ => { });
-    // }
-
-    // const sendEventThroughDirectLine = function (eventName, value) {
-    //     botConnection.postActivity({
-    //         type: "event",
-    //         name: eventName,
-    //         value: value,
-    //         from: { id: botConnection.conversationId }
-    //     }).subscribe(function (id) {
-
-    //     });
     // }
 
     const refresh3DPaintings = function (paintingList: any) {
@@ -223,12 +175,12 @@ declare var BingSpeech:any;
     }
 
     const sendSelectedPaintingInfo = function () {
-        // if (currentPaintingSelected) {
-        //     sendEventThroughDirectLine("PaintingInfo", currentPaintingSelected.paintingData);
-        // }
-        // else {
-        //     sendEventThroughDirectLine("PaintingInfo", undefined);
-        // }
+        if (currentPaintingSelected) {
+            bot.eventHandler(BotLogic.ClientEvents.PaintingInfo, currentPaintingSelected.paintingData);
+        }
+        else {
+            bot.eventHandler(BotLogic.ClientEvents.PaintingInfo, undefined);
+        }
     }
 
     var createTargetMesh = function () {
@@ -283,5 +235,5 @@ declare var BingSpeech:any;
     //everything is defined, let's start the chat
 
     startChat();
-    // launchAudio();
+    launchAudio();
 })();

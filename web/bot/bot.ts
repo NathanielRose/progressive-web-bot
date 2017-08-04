@@ -3,22 +3,47 @@ import { HarvardArtMuseums } from './HarvardClientLib';
 import * as request from 'request';
 
 //Prague imports
-import { UniversalChat, WebChatConnector, IChatMessageMatch } from 'prague-botframework';
+import { UniversalChat, WebChatConnector, IChatMessageMatch, routeChatActivity } from 'prague-botframework';
 import { BrowserBot } from 'prague-botframework-browserbot';
 import { Router, first, best, ifMatch, run, simpleRouter, routeMessage, IStateMatch } from 'prague';
 type B = IChatMessageMatch & IStateMatch<any>;
-import { matchRE, ifMatchRE } from 'prague';
+import { matchRE, ifMatchRE, IRegExpMatch } from 'prague';
 import { LuisModel } from 'prague';
 import { RootDialogInstance, DialogInstance, Dialogs } from 'prague'
-import { Scheduler } from 'rxjs';
+import { Scheduler } from 'rxjs'
+import * as Builder from 'botbuilder'
+import { Activity, Message } from "prague-botframework";
 
 declare global {
     interface Window { browserBot: any; }
+
+    interface Card {
+        contentType: string
+        content: CardAttachment
+    }
+
+    interface CardAttachment {
+        title: string
+        subtitle: string
+        text: string
+        images: Image[]
+        buttons: Button[]
+    }
+
+    interface Image {
+        url: string;
+    }
+
+    interface Button {
+        type: string;
+        title: string;
+        value: string;
+    }
 }
 
 export module BotLogic {
 
-    enum ClientEvents {
+    export enum ClientEvents {
         Refresh3DPaintings,
         LaunchTextToSpeech,
         LaunchSpeechToText,
@@ -37,11 +62,10 @@ export module BotLogic {
         private webChat: WebChatConnector;
         private browserBot: BrowserBot<{}>;
         private router: Router<B>;
+        private notify: (EventType: ClientEvents, data: any) => any;
 
-        /**
-         *
-         */
-        constructor() {
+        constructor(eventHandler: (EventType: ClientEvents, data: any) => any) {
+            this.notify = eventHandler;
             this.initializeForWeb();
         }
 
@@ -58,6 +82,22 @@ export module BotLogic {
             this.init();
         }
 
+        public eventHandler(EventType: ClientEvents, data: any) {
+            switch (EventType) {
+                case ClientEvents.PaintingInfo:
+                    var textToSend;
+                    if (data) {
+                        let painting = <HarvardArtMuseums.Painting>data;
+                        textToSend = `This painting is named: **${painting.title}**, and was created by: **${painting.people.name}**`;
+                    }
+                    else {
+                        textToSend = "You are not looking directly at any painting.";
+                    }
+                    //Send
+                    break;
+            }
+        }
+
         private init() {
             const url = config.luis.url;
             this.harvardClient = new HarvardArtMuseums.Client();
@@ -66,18 +106,12 @@ export module BotLogic {
 
             this.browserBot.message$
                 .observeOn(Scheduler.async)
-                .flatMap(m => routeMessage(this.router, m as any))
+                .flatMap(m => routeMessage(routeChatActivity({ message: this.router }), m as any))
                 .subscribe(
-                    message => console.log("handled", message),
-                    error => console.log("error", error),
-                    () => console.log("complete")
+                message => console.log("handled", message),
+                error => console.log("error", error),
+                () => console.log("complete")
                 );
-
-            console.log('Binding dialogs to intents...');
-            this.setupRules();
-
-            console.log('Initialize backchannel...');
-            this.initBackChannel();
         }
 
         // Build the message for the Azure Search. Added the new 2017 API syntax which adds the API Key into the header
@@ -198,8 +232,30 @@ export module BotLogic {
         }
 
         //message handlers
-        private artistInfoHandler() {
+        private artistInfoHandler(m: IChatMessageMatch & IStateMatch<any> & IRegExpMatch) {
+            var artistName = m.groups[1];
 
+            this.harvardClient.searchFor(artistName, (results) => {
+                let heroCardList: Builder.IAttachment[] = [];
+
+                results.forEach((painting) => {
+                    painting.image.iiifbaseuri = painting.image.iiifbaseuri + "/full/pct:20/0/native.jpg";
+                    heroCardList.push(this.createHeroCard(painting));
+                });
+
+                var message: any =
+                    {
+                        type: "message",
+                        from: { id: "foo" },
+                        text: "Here is the list",
+                        attachments: heroCardList,
+                        attachmentLayout: "carousel"
+                    }
+
+                m.reply(message);
+
+                this.notify(ClientEvents.Refresh3DPaintings, results);
+            });
         }
 
         private setupRules() {
@@ -209,82 +265,39 @@ export module BotLogic {
             // this.dialog.matches('listartists', '/promptArtist');
 
             this.router = first(
-                ifMatch(matchRE(/I am (.*)/i), m => m.reply(`Nice to meet you, ${m.groups[1]}.`)),
-                ifMatch(matchRE(/Hello|Hi|Wassup/i), m => m.reply("Hello, World")),
+                ifMatchRE(/Hello|Hi|Wassup/i, m => m.reply("Hello! I am the art bot. You can say: 'what did picasso paint?")),
+                ifMatchRE(/What did (.*) paint\?/i, m => this.artistInfoHandler(m)),
+                ifMatchRE(/What is this\?/i, m => this.notify(ClientEvents.RequestSelected3DPainting, null)),
                 m => m.reply("I didn't catch that.")
             )
         }
 
-        private initBackChannel() {
-            // this.bot.on("message", (message) => {
+        private createHeroCard(painting: HarvardArtMuseums.Painting): Card {
 
-            // });
-
-            // this.bot.on("event", (message) => {
-            //     if (message.name === ClientEvents[ClientEvents.PaintingInfo]) {
-            //         var textToSend;
-            //         let address = message.address;
-            //         if (message.value) {
-            //             let painting = <harvard.HarvardArtMuseums.Painting>message.value;
-            //             textToSend = `This painting is named: **${painting.title}**, and was created by: **${painting.people.name}**`;
-            //         }
-            //         else {
-            //             textToSend = "You are not looking directly at any painting.";
-            //         }
-            //         delete address.conversationId;
-            //         let msg = new builder.Message()
-            //             .address(address)
-            //             .text(textToSend);
-            //         this.bot.send(msg);
-            //     }
-            // });
+            const paintingCard: Card =
+                {
+                    contentType: "application/vnd.microsoft.card.hero",
+                    content:
+                    {
+                        title: painting.title,
+                        subtitle: painting.people.name,
+                        text: painting.description,
+                        images: [
+                            {
+                                url: painting.image.iiifbaseuri
+                            }
+                        ],
+                        buttons:
+                        [
+                            {
+                                type: "openUrl",
+                                title: "Hey",
+                                value: "https://docs.microsoft.com/bot-framework"
+                            }
+                        ]
+                    }
+                }
+            return paintingCard;
         }
-
-        private sendEvent(session: any, eventType: ClientEvents, value?: any) {
-            // var msg: any = new builder.Message();
-            // msg.data.type = "event";
-            // msg.data.name = ClientEvents[eventType];
-            // msg.data.value = value;
-            // session.send(msg);
-        }
-
-        // private sendPaintings(session: builder.Session, artistName: string) {
-        //     this.harvardClient.searchFor(artistName, (results) => {
-        //         let heroCardList: builder.AttachmentType[] = [];
-
-        //         results.forEach((painting) => {
-        //             painting.image.iiifbaseuri = painting.image.iiifbaseuri + "/full/pct:20/0/native.jpg";
-        //             heroCardList.push(this.createHeroCard(session, painting));
-        //         });
-
-        //         let msg;
-        //         if (heroCardList.length > 0) {
-        //             msg = new builder.Message(session).attachments(heroCardList);
-        //             msg.attachmentLayout(builder.AttachmentLayout.carousel);
-        //         }
-        //         else {
-        //             msg = 'I did not find anything';
-        //         }
-
-        //         session.endDialog(msg);
-
-        //         if (results.length > 0) {
-        //             this.sendEvent(session, ClientEvents.Refresh3DPaintings, results);
-        //         }
-        //     });
-        // }
-
-        // private createHeroCard(session: builder.Session, painting: harvard.HarvardArtMuseums.Painting): builder.HeroCard {
-        //     return new builder.HeroCard(session)
-        //         .title(painting.title)
-        //         .subtitle(painting.people.name)
-        //         .text(painting.description)
-        //         .images([
-        //             builder.CardImage.create(session, painting.image.iiifbaseuri)
-        //         ])
-        //         .buttons([
-        //             builder.CardAction.openUrl(session, 'https://docs.microsoft.com/bot-framework', 'Get Started')
-        //         ]);
-        // }
     }
 }

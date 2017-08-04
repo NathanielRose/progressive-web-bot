@@ -25,7 +25,9 @@ module.exports = {
         console: true,
         fs: 'empty',
         net: 'empty',
-        tls: 'empty'
+        tls: 'empty',
+        dns: 'empty',
+        readline: 'empty'
     },
 
 };
