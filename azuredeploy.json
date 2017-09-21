@@ -13,7 +13,7 @@
         "value": null
     },
     "hostNameBindings_museumbot.azurewebsites.net_name": {
-        "value": "[concat(parameters('sites_museumbot_name'), '.azurewebsites.net')]
+        "value": "[concat(parameters('sites_museumbot_name'), '.azurewebsites.net')]"
     },
     "sites_museumbot_serverFarmId": {
         "value": null
