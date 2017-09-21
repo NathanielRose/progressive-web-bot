@@ -2,14 +2,17 @@
 
 This is a sample of code which shows how you can enable push notifications on a web chat connected to the Microsoft Bot Framework. It is using service workers and Progressive Web Apps features.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://deploy.azure.com/?repository=https://github.com/NathanielRose/progressive-web-bot/tree/master?ptmpl=azuredeploy.parameters.json)
 
+# How to try the sample
 # How to try the sample
 - clone this repository
 - run ```npm install``` from command line
-- run it with ```node bot.js```. It will generate the vapidKey.json file
-- copy the public key in the vapidKey.json and paste it in the ```VAPID_PUBLICKEY``` constant
-- create a public https instance of the bot by
+- run it with ```npm run build```.
+- run `node server.js`.
+
+
+- You will get a message where the port the server is running on. Use this to navigate to ` http://localhost:[serverport]/web/index.html`
     - deploying it online
     - making is publicly available from your computer using a tool like [ngrok](https://ngrok.com/)
     - modify the ```baseurl``` variable in the service-worker.js file with your public base url (https://something.xyz)
