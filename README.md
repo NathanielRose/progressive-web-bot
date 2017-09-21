@@ -5,7 +5,6 @@ This is a sample of code which shows how you can enable push notifications on a 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://deploy.azure.com/?repository=https://github.com/NathanielRose/progressive-web-bot/tree/master?ptmpl=azuredeploy.parameters.json)
 
 # How to try the sample
-# How to try the sample
 - clone this repository
 - run ```npm install``` from command line
 - run it with ```npm run build```.
