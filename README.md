@@ -2,7 +2,7 @@
 
 This is a sample of code which shows how you can enable push notifications on a web chat connected to the Microsoft Bot Framework. It is using service workers and Progressive Web Apps features.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://deploy.azure.com/?repository=https://github.com/NathanielRose/progressive-web-bot/tree/master?ptmpl=azuredeploy.parameters.json)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://deploy.azure.com/?repository=https://github.com/NathanielRose/progressive-web-bot/tree/master?ptmpl=azuredeploy.json)
 
 # How to try the sample
 - clone this repository
