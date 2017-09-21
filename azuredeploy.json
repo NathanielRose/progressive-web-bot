@@ -9,7 +9,7 @@
 
     "appName": {
 
-      "defaultValue": "museum-bot",
+      "defaultValue": "generate-a-unique-name-for-your-museum-bot-app",
 
       "type": "string"
 
